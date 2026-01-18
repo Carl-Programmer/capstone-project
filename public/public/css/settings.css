@@ -1,0 +1,100 @@
+.outer {
+  padding: 24px;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  border: 1px solid #e6e2db;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 14px;
+  border-bottom: 1px solid #e6e2db;
+  cursor: default;
+  transition: background 0.2s ease;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item.clickable {
+  cursor: pointer;
+}
+
+.item.clickable:hover {
+  background: #faf7f2;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f1eb;
+}
+
+.thumb img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.label {
+  font-weight: 700;
+  font-size: 16px;
+  color: #4b331a;
+}
+
+.right img {
+  width: 20px;
+  opacity: 0.5;
+}
+
+/* Notification switch */
+.switch {
+  width: 48px;
+  height: 26px;
+  border-radius: 999px;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.switch.on {
+  background: #5a3f20;
+  justify-content: flex-end;
+}
+
+.knob {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.icon-fa i {
+  font-size: 24px;
+}

@@ -1,0 +1,348 @@
+/* Base topbar layout (desktop and up) */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  z-index: 50;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Logo */
+.logo-link img {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logo-link img:hover {
+  transform: scale(1.02);
+}
+
+/* Avatar */
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Topbar Icons */
+.icon i {
+  font-size: 22px;
+  color: #a96224; /* Chabalingo theme color */
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon i:hover {
+  transform: scale(1.1);
+  color: #7a4318;
+}
+
+/* Search bar */
+.search {
+  display: flex;
+  align-items: center;
+  background: #ffd7b0;
+  border-radius: 30px;
+  padding: 8px 14px;
+  border: 3px solid #613c12;
+  width: 250px;
+  max-width: 100%;
+}
+
+.search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  margin-left: 8px;
+  width: 100%;
+  font-size: 14px;
+}
+
+.search-icon i {
+  color: #a96224;
+  font-size: 16px;
+}
+
+/* Right Tools */
+.right-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notif-wrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.notif-dropdown {
+  position: absolute;
+  right: 0px;
+  top: 65px;
+  width: 260px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  overflow: hidden; /* Allow scrolling */
+  max-height: 350px; /* Limit dropdown height */
+  z-index: 999;
+}
+
+.notif-dropdown.hidden {
+  display: none;
+}
+
+.notif-list {
+  max-height: 300px;
+  overflow-y: auto; /* only this scrolls */
+  padding: 8px 0;
+}
+
+.notif-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  font-size: 14px;
+
+  display: flex;
+  flex-direction: column; /* <- makes message + date stack vertically */
+  white-space: normal; /* <- allows multi-line text */
+  word-break: break-word; /* <- forces long words to wrap */
+}
+
+.view-all {
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+.view-all:hover {
+  background: #f0f0f0;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item:hover {
+  background: #f7efe6;
+}
+
+.delete-btn {
+  cursor: pointer;
+  color: #aaa;
+  font-size: 20px;
+  transition: 0.2s;
+}
+.delete-btn:hover {
+  color: #e74c3c;
+}
+
+.notif-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background: #ff4444;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+.hidden {
+  display: none;
+}
+
+.search {
+  position: relative;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.search-suggestions.hidden {
+  display: none;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+.no-results {
+  padding: 8px 12px;
+  color: #999;
+  font-size: 13px;
+}
+
+.hamburger-btn {
+  background: transparent;
+  color: #333;
+  font-size: 28px;
+  border: none;
+  cursor: pointer;
+  z-index: 60; /* higher than topbar background */
+}
+
+.hamburger-btn:hover {
+  color: #ff8c00; /* or your accent color */
+}
+
+/* =========================================
+   🎞️ Page Title overflow handling
+   ========================================= */
+
+/* Default title style */
+.page-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 900;
+  font-size: 20px;
+  color: #5a3f20;
+  position: relative;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Inner span holds the actual text */
+.page-title span {
+  display: inline-block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* When the title is long, enable scrolling animation */
+.page-title.long span {
+  overflow: visible;
+  text-overflow: unset;
+  animation: scroll-title 10s linear;
+}
+
+/* Smooth left-right scroll animation */
+@keyframes scroll-title {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* =========================
+   Mobile layout (≤ 768px)
+   ========================= */
+@media (max-width: 768px) {
+  /* Use a 3-column grid: [toggle] [search centered] [notif] */
+  .topbar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 10px;
+    padding: 0 10px;
+    height: 64px; /* a bit tighter on mobile */
+  }
+
+  /* Hide logo + page title + avatar on small screens */
+  .logo-box,
+  .page-title,
+  .avatar-link {
+    display: none !important;
+  }
+
+  /* Keep the sidebar toggle visible and compact on the left */
+  #toggleSidebar,
+  .hamburger-btn {
+    background: transparent;
+    color: #333;
+    font-size: 24px; /* slightly smaller on mobile */
+    line-height: 1;
+    padding: 6px 8px;
+    border: none;
+    cursor: pointer;
+    justify-self: start; /* left column */
+  }
+
+  /* Search sits in the middle column and is smaller */
+  .search {
+    width: 100%;
+    max-width: 220px; /* make it smaller */
+    padding: 6px 10px; /* tighter padding */
+    border-width: 2px; /* slimmer border */
+    border-radius: 24px;
+    flex: 0 1 250px;
+    margin: 5 auto;
+  }
+
+  .search input {
+    font-size: 14px; /* readable but compact */
+  }
+
+  .search-icon i {
+    font-size: 14px; /* smaller icon inside the search */
+  }
+
+  /* Right tools: only the bell, smaller size */
+  .right-tools {
+    justify-self: end; /* right column */
+    gap: 8px;
+  }
+
+  .notif-icon i {
+    font-size: 18px; /* tiny bell */
+  }
+
+  /* Make the dropdown position tighter relative to smaller topbar */
+  .notif-dropdown {
+    top: 56px;
+    width: 240px;
+  }
+}

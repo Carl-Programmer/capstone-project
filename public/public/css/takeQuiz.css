@@ -1,0 +1,284 @@
+:root {
+  --bg: #f4f0ea;
+  --panel: #ffcb91;
+  --line: #e6e2db;
+  --accent: #eec08b;
+  --accent-2: #f3d4a9;
+  --text: #5a3f20;
+  --muted: #7b6b5f;
+  --radius: 14px;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --header-h: 80px;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  padding-top: var(--header-h);
+}
+
+/* ======= TOPBAR (copied, trimmed) ======= */
+.topbar {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 100;
+}
+.logo-box {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: absolute;
+  left: 16px;
+}
+.logo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.right-tools {
+  position: absolute;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ================== Exam Layout ================== */
+.exam-grid {
+  padding: 18px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr 320px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .exam-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Spacing between questions */
+#questions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Question card */
+.q-card {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.q-side {
+  background: #b36200;
+  color: #fff;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+.q-side .lbl {
+  font-weight: 700;
+}
+.q-side .num {
+  font-weight: 900;
+  font-size: 44px;
+  line-height: 1;
+}
+.q-body {
+  padding: 16px;
+}
+.q-body p {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+.choices {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.choices label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 18px;
+}
+.q-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.mark {
+  font-size: 12px;
+  color: #7b6b5f;
+  text-decoration: none;
+  border-bottom: 1px dashed #7b6b5f;
+}
+.mark.marked {
+  color: #b83b12;
+  border-color: #b83b12;
+}
+.clear-btn {
+  margin-left: auto;
+  border: 1px solid #c9c0b6;
+  background: #fff;
+  color: #6a5d52;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* ======= Exam Rail (bigger content only) ======= */
+.exam-rail {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px; /* slightly more padding */
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: calc(var(--header-h) + 14px);
+  font-size: 16px; /* larger base text */
+}
+.rail-title {
+  font-weight: 800;
+  margin-bottom: 10px;
+  font-size: 18px; /* larger title */
+}
+.timer {
+  font-weight: 800;
+  font-size: 20px; /* larger timer */
+  margin-bottom: 12px;
+}
+.nav-title {
+  font-weight: 800;
+  margin: 14px 0 10px;
+  font-size: 18px; /* larger nav title */
+}
+
+/* SINGLE grid for all numbers (uniform gaps) */
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px; /* consistent spacing for every button */
+}
+.nav-btn {
+  display: grid;
+  place-items: center;
+  height: 42px; /* larger button height */
+  font-size: 15px; /* larger number text */
+  border: 1px solid #d8cfc6;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+.nav-btn:hover {
+  background: #fff2e0;
+}
+.nav-btn.active {
+  background: #ffd7b0;
+  border-color: #f0b178;
+}
+.nav-btn.marked {
+  outline: 2px dashed #b83b12;
+}
+.finish {
+  display: inline-block;
+  margin-top: 18px;
+  color: #1a56db;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+/* Back-to-top button */
+.to-top {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  background: #ac6b2e;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  font-size: 20px;
+}
+
+.nav-btn.answered {
+  background: #4ade80; /* green */
+  color: white;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+}
+
+.modal-actions button {
+  margin: 10px;
+}

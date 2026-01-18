@@ -1,0 +1,55 @@
+/* ============================
+   📜 Previous Attempts Section
+============================ */
+.previous-attempts {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: #fffaf4;
+  border-radius: 16px;
+  border: 1px solid #f3e5db;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* 🧾 Table layout */
+.attempts-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* adds vertical gaps between rows */
+}
+
+.attempts-table th,
+.attempts-table td {
+  font-size: 1rem;
+  padding: 14px 16px; /* more breathing room */
+  text-align: left;
+}
+
+.attempts-table th {
+  font-weight: 700;
+  color: #4a2e05;
+  background: #fef3c7;
+  border-bottom: 2px solid #f3e5db;
+}
+
+.attempts-table td {
+  color: #5c4431;
+  background: #ffffff;
+  border: 1px solid #f3e5db;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 🪄 Row hover effect */
+.attempts-table tr:hover td {
+  background: #fff7ed;
+  transition: background 0.2s ease-in-out;
+}
+
+/* ✅ Make it mobile-friendly */
+@media (max-width: 640px) {
+  .attempts-table th,
+  .attempts-table td {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+}

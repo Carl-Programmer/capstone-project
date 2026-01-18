@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <main class="p-8">
+        <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8">
+          <h1 class="text-2xl font-bold mb-6">Edit User</h1>
+
+          <form action="/admin/users/edit/<%= userToEdit._id %>" method="POST" class="flex flex-col gap-4">
+            <div>
+              <label class="block text-gray-700">Given Name</label>
+              <input type="text" name="givenName" value="<%= userToEdit.givenName %>" required
+                     class="w-full border rounded-lg p-2 mt-1 focus:ring focus:ring-indigo-200">
+            </div>
+
+            <div>
+              <label class="block text-gray-700">Surname</label>
+              <input type="text" name="surname" value="<%= userToEdit.surname %>" required
+                     class="w-full border rounded-lg p-2 mt-1 focus:ring focus:ring-indigo-200">
+            </div>
+
+            <div>
+              <label class="block text-gray-700">Gender</label>
+              <select name="gender" class="w-full border rounded-lg p-2 mt-1">
+                <option value="Male" <%= userToEdit.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                <option value="Female" <%= userToEdit.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                <option value="PreferNot" <%= userToEdit.gender === 'PreferNot' ? 'selected' : '' %>>Prefer not to say</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-gray-700">Date of Birth</label>
+              <input type="date" name="dateOfBirth"
+                     value="<%= userToEdit.dateOfBirth ? userToEdit.dateOfBirth.toISOString().split('T')[0] : '' %>"
+                     class="w-full border rounded-lg p-2 mt-1">
+            </div>
+
+<div>
+  <label class="block text-gray-700">Role</label>
+
+  <% if (userToEdit.role === 'admin') { %>
+      <p class="text-sm text-gray-500 mt-1 italic">Admin role cannot be changed.</p>
+    <!-- 🚫 Admins can't change their own role -->
+    <select name="role" class="w-full border rounded-lg p-2 mt-1 bg-gray-100 cursor-not-allowed" disabled>
+      <option value="admin" selected>Admin</option>
+    </select>
+    <input type="hidden" name="role" value="admin"> <!-- Ensures role remains admin -->
+  <% } else { %>
+    <select name="role" class="w-full border rounded-lg p-2 mt-1">
+      <option value="user" <%= userToEdit.role === 'user' ? 'selected' : '' %>>User</option>
+      <option value="admin" <%= userToEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
+    </select>
+  <% } %>
+</div>
+
+
+            <div class="flex justify-between mt-6">
+              <a href="/admin/users" class="text-gray-600 hover:underline">← Back</a>
+              <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

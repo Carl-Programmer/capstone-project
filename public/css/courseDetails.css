@@ -1,0 +1,56 @@
+.lesson-preview ul {
+  list-style-type: disc !important;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.lesson-preview ol {
+  list-style-type: decimal !important;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.lesson-preview li {
+  margin-bottom: 0.25rem;
+}
+
+.lesson-preview li p {
+  display: inline;
+  margin: 0;
+}
+
+.lesson-preview ul li::marker {
+  color: #f97316;
+  font-weight: bold;
+}
+
+.lesson-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.lesson-preview th,
+.lesson-preview td {
+  border: 1px solid #ddd;
+  padding: 4px 8px;
+}
+
+.lesson-preview th {
+  background-color: #fff7ed;
+  color: #4a2e05;
+  font-weight: 600;
+}
+
+#archived-lessons-section:target {
+  animation: highlight 1s ease;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: #fff4e8;
+  }
+  100% {
+    background-color: transparent;
+  }
+}

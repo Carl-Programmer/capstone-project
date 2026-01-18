@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <div class="wrap">
+        <section class="shell">
+          <h2 class="dashboard-title">Dashboard Overview</h2>
+
+          <div class="grid">
+            <div class="course">
+              <div class="title">👥 Users</div>
+              <div class="value"> <%= totalUsers || 0 %></div>
+              <div class="label">Total Users</div>
+            </div>
+
+            <div class="course">
+              <div class="title">📘 Courses</div>
+              <div class="value"><%= totalCourses || 0 %></div>
+              <div class="label">Total Courses</div>
+            </div>
+            
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

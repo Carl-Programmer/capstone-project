@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle || 'Final Exam Result' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#fffaf5] min-h-screen flex flex-col">
+
+  <!-- 🔹 Top Navigation -->
+  <header class="topbar shadow">
+    <%- include('../partials/_topbar') %>
+  </header>
+
+  <!-- 🔹 Main Result Content -->
+  <main class="flex-grow flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-white border border-[#f3e5db] rounded-2xl shadow-lg p-8 text-center">
+
+      <h1 class="text-3xl font-bold text-[#4a2e05] mb-6">
+        Final Exam Result
+      </h1>
+
+      <%
+        let percentage = Math.round((score / total) * 100);
+        let passed = percentage >= 70;
+      %>
+
+      <% if (passed) { %>
+        <div class="mb-6">
+          <div class="w-24 h-24 mx-auto flex items-center justify-center bg-green-100 border-4 border-green-500 rounded-full text-5xl">
+            🏅
+          </div>
+          <h2 class="text-2xl font-semibold text-green-700 mt-4">
+            Congratulations!
+          </h2>
+          <p class="text-green-600 text-lg mt-2">
+            You passed the final exam and earned your certificate! 🎉
+          </p>
+        </div>
+      <% } else { %>
+        <div class="mb-6">
+          <div class="w-24 h-24 mx-auto flex items-center justify-center bg-red-100 border-4 border-red-500 rounded-full text-5xl">
+            ❌
+          </div>
+          <h2 class="text-2xl font-semibold text-red-700 mt-4">
+            Better Luck Next Time
+          </h2>
+          <p class="text-red-600 text-lg mt-2">
+            You didn’t reach the passing grade. Keep practicing and try again!
+          </p>
+        </div>
+      <% } %>
+
+<!-- 📊 Final Exam Results Summary -->
+<div class="max-w-3xl mx-auto mt-10 px-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+    
+    <!-- Score -->
+    <div class="p-6 rounded-2xl bg-[#fff7ed] border border-[#f3e5db] shadow-sm hover:shadow-md transition">
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Score</p>
+      <p class="text-2xl sm:text-3xl font-bold text-[#4a2e05] mt-2">
+        <%= score %> / <%= total %>
+      </p>
+    </div>
+    
+    <!-- Percentage -->
+    <div class="p-6 rounded-2xl bg-[#fff7ed] border border-[#f3e5db] shadow-sm hover:shadow-md transition">
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Percentage</p>
+      <p class="text-2xl sm:text-3xl font-bold text-[#4a2e05] mt-2">
+        <%= percentage.toFixed(2) %>%
+      </p>
+    </div>
+    
+    <!-- Status -->
+    <div class="p-6 rounded-2xl bg-[#fff7ed] border border-[#f3e5db] shadow-sm hover:shadow-md transition">
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Status</p>
+      <p class="text-2xl sm:text-3xl font-bold mt-2 <%= passed ? 'text-green-700' : 'text-red-700' %>">
+        <%= passed ? 'Passed' : 'Failed' %>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+
+      <!-- 🔹 Back Button -->
+      <div class="mt-10">
+        <a href="/users/final-exam/<%= course._id %>"
+           class="inline-block bg-[#f97316] hover:bg-[#ea580c] text-white text-lg font-medium px-6 py-3 rounded-lg shadow transition duration-200">
+          ⬅ Back to Attempt History
+        </a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

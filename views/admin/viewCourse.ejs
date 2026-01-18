@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/viewCourse.css">
+  <script defer src="/js/main.js"></script>
+  <script defer src="/js/viewCourse.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/typography"></script>
+  <script>
+  tailwind.config = {
+    theme: {
+      extend: {},
+    },
+    plugins: [tailwindcss.typography],
+  };
+  </script>
+</head>
+
+<body class="bg-[#fffaf4] text-[#4a2e05]">
+
+      <!-- Floating Close Button -->
+      <a href="/courses"
+        class="fixed top-[7.1rem] right-6 bg-[#ffd9b3] text-[#4a2e05] px-4 py-2.5 rounded-full shadow-md 
+                hover:bg-[#fbbf77] hover:scale-105 active:scale-95 transition-all duration-200 
+                z-[9999]">
+        ✕
+      </a>
+
+  <div class="app relative min-h-screen overflow-x-hidden">
+    <!-- 🟧 Include main sidebar, but hidden on desktop -->
+<div class="main-sidebar-wrapper block md:hidden">
+  <%- include('../partials/_sidebar') %>
+</div>
+
+    <main class="main relative z-10">
+      <!-- 🔝 Topbar -->
+      <%- include('../partials/_topbar') %>
+
+      <!-- ☰ Hamburger -->
+      <%- include('../partials/_hamburger') %>
+
+      <!-- 🧭 Lessons Sidebar -->
+      <%- include('../partials/_lessonSidebar', { lessons: lessons }) %>
+
+      <!-- 🔳 Overlay -->
+      <div id="overlay" class="overlay hidden"></div>
+
+      <!-- 🧠 Main Course Content -->
+      <div class="content">
+<header class="course-header">
+    <% if (!enrollment) { %>
+    <!-- 🔸 Enroll button above title -->
+    <form action="/courses/enroll/<%= course._id %>" method="POST" class="mb-3">
+      <button type="submit"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-medium px-6 py-2.5 rounded-lg shadow-md 
+               transition transform hover:scale-105 active:scale-95">
+        📝 Enroll Now
+      </button>
+    </form>
+  <% } else { %>
+    <!-- 🟢 Enrolled badge -->
+    <div class="mb-3 bg-green-100 text-green-700 font-medium px-5 py-2 rounded-lg inline-block shadow-sm">
+      ✅ Enrolled
+    </div>
+  <% } %>
+
+<div class="course-info">
+  <h1><%= course.title %></h1>
+  <p class="level"><%= course.level %> Level</p>
+  
+  <div class="desc prose max-w-none text-[#4a2e05]">
+    <%- course.description || "<p><em>No description provided.</em></p>" %>
+  </div>
+</div>
+
+</header>
+
+
+
+<section class="syllabus bg-white p-6 rounded-lg shadow mb-6">
+  <h2 class="text-2xl font-semibold text-[#4a2e05] mb-2">📄 Course Syllabus</h2>
+  <p class="text-gray-600 mb-3">See the full syllabus or view lessons below.</p>
+
+  <% if (course.syllabusPath) { %>
+    <a href="<%= course.syllabusPath %>" target="_blank"
+       class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg transition">
+      View Syllabus
+    </a>
+  <% } else { %>
+    <p class="text-gray-500 italic">No syllabus uploaded yet.</p>
+  <% } %>
+</section>
+
+<!-- 🧠 Units & Lessons Section -->
+<section>
+  <h2>Units & Lessons</h2>
+
+  <% lessons.forEach((lesson, i) => { %>
+    <details id="lesson-<%= i %>" class="lesson-card" data-lesson-id="<%= lesson._id %>">
+      <summary class="flex items-center justify-between">
+        <span><%= lesson.title %></span>
+
+        <% if (completedLessons && completedLessons.includes(lesson._id.toString())) { %>
+          <span class="text-green-600 font-bold ml-2">✔ Completed</span>
+        <% } else { %>
+          <span class="text-gray-400 italic ml-2">Incomplete</span>
+        <% } %>
+      </summary>
+
+
+      <div class="lesson-body">
+        <!-- 🧠 Lesson Content -->
+        <div class="lesson-content prose max-w-none text-[#4a2e05]">
+          <%- lesson.description %>
+        </div>
+
+        <!-- 🧩 Assessment Section -->
+        <% if (lesson.hasQuiz) { %>
+          <div class="assessment-section mt-8 p-6 border-t border-[#f3e5db] bg-[#fff9f5] rounded-b-2xl">
+            <h3 class="text-xl font-semibold mb-3 text-[#4a2e05] flex items-center gap-2">
+              🧩 Unit Assessment
+            </h3>
+            <p class="text-gray-600 mb-4">Test your understanding of this lesson before moving on!</p>
+
+<% if (enrollment) { %>
+  <!-- ✅ User is enrolled: show active quiz button -->
+  <a href="/users/quiz/<%= lesson._id %>"
+     class="inline-block px-5 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white font-medium transition transform hover:scale-105 active:scale-95">
+    ➤ Take Quiz
+  </a>
+<% } else { %>
+  <!-- 🔒 Not enrolled: show encouragement button -->
+  <a href="/courses/<%= course._id %>"
+     class="inline-block px-5 py-2 rounded-lg bg-gray-300 text-gray-600 hover:bg-gray-400 transition font-medium transform hover:scale-105 active:scale-95">
+    🔒 Enroll to Unlock Quiz
+  </a>
+  <p class="text-sm text-gray-500 italic mt-2">
+    Join this course to start learning and unlock all assessments!
+  </p>
+<% } %>
+
+          </div>
+        <% } else { %>
+          <div class="assessment-section mt-6 p-6 border-t border-gray-100 text-gray-500 italic">
+            🧩 No assessment available for this lesson yet.
+          </div>
+        <% } %>
+      </div>
+    </details>
+  <% }) %>
+</section>
+
+<div class="pb-32"></div> <!-- spacer -->
+
+<!-- 🧠 Final Exam Section -->
+<section class="final-exam bg-white p-6 rounded-lg shadow mt-8 mb-12 border-t-4 border-[#f97316]">
+  <h2 class="text-2xl font-semibold text-[#4a2e05] mb-3">🧠 Final Exam</h2>
+
+  <% if (enrollment && enrollment.progress === 100) { %>
+    <p class="text-gray-600 mb-4">
+      You’ve completed all lessons! Take the final exam below to earn your certificate.
+    </p>
+
+    <a href="/users/final-exam/<%= course._id %>"
+       class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105 active:scale-95">
+      🧠 Take Final Exam
+    </a>
+
+  <% } else { %>
+    <p class="text-gray-600 mb-4">
+      Complete all lessons to unlock the final exam.
+    </p>
+
+    <!-- Disabled-looking button -->
+    <button disabled
+      class="inline-block bg-gray-300 text-gray-500 cursor-not-allowed px-5 py-2.5 rounded-lg font-medium opacity-70">
+      🔒 Final Exam Locked
+    </button>
+
+    <!-- Optional progress hint -->
+    <p class="text-sm text-gray-500 mt-2 italic">
+      Progress: <%= enrollment ? enrollment.progress : 0 %>%
+    </p>
+  <% } %>
+</section>
+
+      </div>
+    </main>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // read ?focus=lessonId from the URL
+  const params = new URLSearchParams(window.location.search);
+  const focusId = params.get("focus");
+  if (!focusId) return;
+
+  // find the matching <details> block
+  const target = [...document.querySelectorAll(".lesson-card")].find(el => {
+    // get the lesson _id attached as data-id
+    return el.dataset.lessonId === focusId;
+  });
+
+  if (target) {
+    // open it
+    target.open = true;
+
+    // highlight briefly
+    target.classList.add("ring-4", "ring-orange-400", "ring-opacity-60");
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // remove highlight after 2 s
+    setTimeout(() => {
+      target.classList.remove("ring-4", "ring-orange-400", "ring-opacity-60");
+    }, 2000);
+  }
+});
+</script>
+<script defer src="/js/lessonFix.js"></script>
+<script defer src="/js/imageZoom.js"></script>
+
+
+</body>
+</html>
+

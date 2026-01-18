@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= course.title %> • Final Exam</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/exam.css">
+  <link rel="stylesheet" href="/css/quizAttempt.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <!-- 🔹 Top Navigation -->
+  <header class="topbar">
+    <%- include('../partials/_topbar') %>
+  </header>
+
+
+  <!-- 🔹 Main Exam Landing Content -->
+  <main class="exam-landing">
+<div class="flex items-center justify-between mb-4">
+  <h2 class="flex items-center text-2xl font-semibold text-[#4a2e05]">
+    <img src="/img/certificate.png" alt="Certificate Icon"
+         class="w-7 h-7 mr-2">
+    Final Exam: <%= course.title %>
+  </h2>
+
+  <!-- 🔙 Back Button -->
+  <a href="/courses/<%= course._id %>/view"
+     class="flex items-center gap-1 bg-[#f97316] hover:bg-[#ea580c] text-white 
+            text-sm font-medium px-4 py-2 rounded-lg shadow-md transition-all duration-200">
+    ⬅ Back
+  </a>
+</div>
+
+
+    <p><strong>Instructions:</strong></p>
+    <ul>
+      <li><%= course.examSettings.description || "Answer all questions carefully to complete your course." %></li>
+      <li>Once submitted, you cannot change your answers.</li>
+<li>You must achieve at least 70% out of 100% to pass and earn your certificate.</li>
+      <li>You have <%= course.examSettings.timeLimit %> minutes to complete the exam.</li>
+    </ul>
+
+    <a href="/users/final-exam/<%= course._id %>/start" class="attempt-btn">
+      Start Final Exam
+    </a>
+
+<div class="objectives">
+  <p><strong>Exam Details:</strong></p>
+  <ul>
+    <li>Total questions: <%= quiz.questions.length %></li>
+    <li>Time limit: <%= course.examSettings.timeLimit %> minutes</li>
+    <li>Passing grade: 70% / 100%</li>
+  </ul>
+</div>
+
+
+    <!-- 🧩 PREVIOUS ATTEMPTS SECTION -->
+    <hr style="margin: 40px 0; border: none; border-top: 2px dashed #f3e5db;">
+
+    <section class="previous-attempts">
+      <h3 class="text-2xl font-semibold mb-3">📜 Previous Attempts</h3>
+
+      <% if (attempts && attempts.length > 0) { %>
+        <div class="overflow-x-auto">
+          <table class="attempts-table w-full border-collapse text-sm">
+            <thead>
+              <tr style="background: #fef3c7; text-align: left;">
+                <th class="py-2 px-3">Date Taken</th>
+                <th class="py-2 px-3">Score</th>
+                <th class="py-2 px-3">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% attempts.forEach(attempt => { %>
+                <tr class="border-b hover:bg-[#fff7ed]">
+<td class="py-2 px-3">
+  <%= attempt.takenAtPH %>
+</td>
+                  <td class="py-2 px-3">
+                    <%= attempt.percentage.toFixed(2) %>% (<%= attempt.score %>/<%= attempt.totalScore %>)
+                  </td>
+                  <td class="py-2 px-3 font-semibold"
+                      style="color:<%= attempt.status === 'Passed' ? '#15803d' : '#b91c1c' %>;">
+                    <%= attempt.status %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="text-gray-500 italic">You haven’t attempted this final exam yet.</p>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

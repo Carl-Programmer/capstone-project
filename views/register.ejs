@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Register</title>
+  <link rel="stylesheet" href="/css/register.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <script defer src="/js/togglePassword.js"></script>
+  <script defer src="/js/register.js">  </script>
+  
+<style>
+@keyframes fadeInOut {
+  0%,100% { opacity: 0; transform: translateY(-10px) translateX(-50%); }
+  10%,90% { opacity: 1; transform: translateY(0) translateX(-50%); }
+}
+.animate-fade {
+  animation: fadeInOut 4s ease forwards;
+}
+</style>
+
+</head>
+
+<body class="min-h-screen flex flex-col text-white">
+
+  <!-- HEADER -->
+  <header class="flex justify-between items-center px-6 py-4 bg-[#a35400]">
+    <div class="flex items-center gap-2">
+      <a href="/login">
+        <img src="/img/Chabalingo-Logo 1.png" alt="Chavalingo Logo" class="h-20 drop-shadow-md">
+      </a>
+    </div>
+    <h2 class="text-4xl font-bold tracking-widest font-[Jomhuria]">CREATE PROFILE</h2>
+  </header>
+
+  <div class="w-full h-8 bg-[#fbc27c] mb-6"></div>
+
+<!-- MAIN CONTENT -->
+<main class="flex flex-col items-center flex-1 px-4">
+  <!-- SHOW ALERT MESSAGES -->
+<% if (success) { %>
+  <div id="alertBox" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium z-50 animate-fade">
+    <i class="fas fa-check-circle mr-2"></i><%= success %>
+  </div>
+
+  <script>
+    // Wait 5 seconds then go to login
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 5000);
+  </script>
+<% } %>
+
+<% if (error) { %>
+  <div id="alertBox" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium z-50 animate-fade">
+    <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+  </div>
+<% } %>
+
+  <form
+    action="/register"
+    method="POST"
+    class="flex flex-col lg:flex-row justify-center gap-10 w-full max-w-5xl bg-transparent"
+  >
+    <!-- LEFT COLUMN -->
+    <div class="bg-white text-[#4a2e05] rounded-3xl shadow-xl p-8 flex flex-col gap-7 w-full lg:w-1/2">
+
+      <!-- GIVEN NAME -->
+      <input type="text" name="givenName" placeholder="Given Name" required
+        class="font-system rounded-full px-5 py-3 bg-[#5a3a1c] text-white placeholder-white focus:ring-4 focus:ring-[#ffcb91] outline-none" />
+
+      <!-- SURNAME -->
+      <input type="text" name="surname" placeholder="Surname" required
+        class="font-system rounded-full px-5 py-3 bg-[#5a3a1c] text-white placeholder-white focus:ring-4 focus:ring-[#ffcb91] outline-none" />
+
+      <!-- GENDER DROPDOWN -->
+      <div class="relative">
+        <select name="gender" required
+          class="appearance-none font-system w-full rounded-full px-5 py-3 bg-[#5a3a1c] text-white focus:ring-4 focus:ring-[#ffcb91] outline-none cursor-pointer">
+          <option value="" disabled selected hidden>Gender</option>
+          <option value="male" class="text-black">Male</option>
+          <option value="female" class="text-black">Female</option>
+          <option value="other" class="text-black">Prefer not to say</option>
+        </select>
+        <i class="fas fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-white pointer-events-none"></i>
+      </div>
+
+<!-- DATE OF BIRTH -->
+      <!-- DATE OF BIRTH -->
+      <div class="relative w-full" id="dobContainer">
+        <input 
+          type="date"
+          name="dateOfBirth"
+          id="dob"
+          required
+          placeholder="Date of Birth"
+          class="font-system rounded-full px-5 py-3 pr-12 bg-[#5a3a1c] text-white focus:ring-4 focus:ring-[#ffcb91] outline-none w-full cursor-pointer"
+        />
+
+        <!-- In-field hint -->
+        <span
+          id="dobHint"
+          class="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-white/70 text-sm"
+        >
+          Date of Birth
+        </span>
+
+        <!-- Calendar icon -->
+        <i
+          class="fas fa-calendar-alt absolute right-5 top-1/2 -translate-y-1/2 text-white opacity-80"
+          aria-hidden="true"
+        ></i>
+      </div>
+
+
+      <!-- USERNAME -->
+      <input type="text" name="username" placeholder="Username" required
+        class="font-system rounded-full px-5 py-3 bg-[#5a3a1c] text-white placeholder-white focus:ring-4 focus:ring-[#ffcb91] outline-none" />
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="bg-white text-[#4a2e05] rounded-3xl shadow-xl p-8 flex flex-col gap-8 w-full lg:w-1/2">
+
+      <!-- EMAIL -->
+      <input type="email" name="email" placeholder="Email" required
+        class="font-system rounded-full px-5 py-3 bg-[#5a3a1c] text-white placeholder-white focus:ring-4 focus:ring-[#ffcb91] outline-none" />
+
+      <!-- PASSWORD -->
+<!-- PASSWORD -->
+<div class="relative w-full">
+  <input
+    type="password"
+    id="password"
+    name="password"
+    placeholder="Password"
+    required
+    class="font-system rounded-full px-5 py-3 bg-[#5a3a1c] text-white placeholder-white focus:ring-4 focus:ring-[#ffcb91] outline-none w-full pr-10"
+  />
+  <i
+    class="fas fa-eye toggle-password absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-white opacity-80 hover:opacity-100"
+  ></i>
+</div>
+
+      <!-- CONFIRM PASSWORD -->
+      <div class="relative w-full">
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required
+          class="font-system rounded-full px-5 py-3 bg-[#5a3a1c] text-white placeholder-white focus:ring-4 focus:ring-[#ffcb91] outline-none w-full pr-10" />
+        <i class="fas fa-eye toggle-password absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-white opacity-80 hover:opacity-100"></i>
+      </div>
+
+      <!-- TERMS & BUTTON -->
+      <div class="mt-0 text-center flex flex-col items-center gap-4">
+<label class="font-system flex items-start sm:items-center gap-3 text-sm sm:text-base text-[#4a2e05] text-left max-w-md leading-relaxed">
+  <input type="checkbox" required class="w-5 h-5 accent-[#ffcb91] mt-0.5 sm:mt-0 flex-shrink-0">
+  <span class="inline-block">
+    I confirm that my information is correct and that I agree to the
+    <button id="openModalBtn" type="button" class="underline text-[#b36200] hover:text-[#ffcb91] transition">
+      Terms & Conditions and Privacy Policy
+    </button>
+  </span>
+</label>
+
+        <button
+          type="submit"
+          class="bg-[#FFCB91] text-[#B36200] px-10 py-2 rounded-full font-[Jomhuria] text-2xl shadow-lg hover:bg-[#f5b874] transition-all duration-200"
+        >
+          Create Account
+        </button>
+      </div>
+    </div>
+  </form>
+
+<!-- ========================= -->
+<!-- TERMS & CONDITIONS MODAL -->
+<!-- ========================= -->
+<div id="termsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+  <div class="bg-white w-full max-w-4xl rounded-2xl shadow-lg overflow-y-auto max-h-[85vh] p-6 relative">
+    <h2 class="text-xl sm:text-2xl font-bold text-[#4a2e05] mb-4 text-center">Chabalingo: Terms & Conditions and Privacy Policy</h2>
+
+    <div class="text-sm sm:text-base text-gray-700 space-y-4 text-justify">
+      <p><strong>Welcome to Chabalingo,</strong> a Kabiteño Chavacano Web-Based Language Learning Platform. By accessing, creating an account, or using this website, you agree to the following Terms and Conditions and Privacy Policy. Please read this document carefully before using the platform.</p>
+
+      <h3 class="font-semibold text-[#b36200] mt-6">TERMS AND CONDITIONS</h3>
+
+      <p><strong>1. Acceptance of Terms</strong><br>
+      By using Chabalingo, the user acknowledges that they have read, understood, and agreed to all provisions stated in this document. If the user disagrees with any section, they must discontinue use of the platform.</p>
+
+      <p><strong>2. Purpose of the Platform</strong><br>
+      Chabalingo is developed in response to the growing need to sustain and preserve the Cavite City Chavacano language. This study proposes the creation of a web-based language learning platform designed to support the development, revitalization, and long-term appreciation of the Cavite City Chavacano dialect. The system aims to encourage a wide percentage of young residents to learn and embrace the language, ensuring its continuity for future generations.</p>
+
+      <p>In addition, Chabalingo aligns strongly with the United Nations Sustainable Development Goals (SDGs) particularly Goal 4: Quality Education and Goal 8: Decent Work and Economic Growth. By promoting cultural consciousness and strengthening local identity, the platform contributes to enhancing Cavite City’s potential for tourism development through increased appreciation of its heritage.</p>
+
+      <p>Chabalingo is intended for educational purposes, providing users with modules, quizzes, and interactive content to support their learning of the Kabiteño Chavacano language. While it is not a platform for official or professional linguistic certification, Chabalingo offers a Certificate of Completion to users who successfully pass the Chabacano Courses’ Final Examination.</p>
+
+      <p>This certificate serves as formal recognition of a user’s effort and achievement in learning the Kabiteño Chavacano language. It is officially recognized by the Cavite City Tourism Department, acknowledging the user’s participation in promoting and preserving the local language and cultural heritage. Although the certificate is not a professional or academic credential, it stands as an official acknowledgment of successful completion and engagement within Chabalingo’s learning program.</p>
+
+      <p><strong>3. User Accounts</strong><br>
+      3.1 Users must provide accurate and complete information during registration.<br>
+      3.2 Users are responsible for maintaining the confidentiality of their login credentials.<br>
+      3.3 Any actions performed under a user account are the sole responsibility of the account owner.<br>
+      3.4 The administrators may suspend or terminate accounts that violate these Terms.</p>
+
+      <p><strong>4. Acceptable Use</strong><br>
+      Users agree NOT to:<br>
+      - Use Chabalingo for illegal, harmful, or abusive purposes<br>
+      - Disrupt platform operations through hacking, malware, or unauthorized access<br>
+      - Share copyrighted content without permission<br>
+      - Impersonate individuals or misrepresent identity<br>
+      - Use the platform for unauthorized commercial purposes<br>
+      - Spamming may be considered a robot.<br>
+      Violation of these rules may result in immediate account termination.</p>
+
+      <p><strong>5. Intellectual Property</strong><br>
+      5.1 All learning content, designs, modules, quizzes, code, graphics, and materials are the intellectual property of Chabalingo developers unless otherwise stated.<br>
+      5.2 Users may access and use materials only for personal educational purposes.<br>
+      5.3 Copying, redistributing, modifying, or selling any content without authorization is strictly prohibited.</p>
+
+      <p><strong>6. Learning Content Disclaimer</strong><br>
+      While the team aims to provide accurate and culturally relevant Kabiteño Chavacano materials, Chabalingo does not guarantee:<br>
+      - 100% correctness of translations<br>
+      - Absolute linguistic accuracy<br>
+      - Comprehensive cultural or historical coverage<br>
+      Users are encouraged to consult external references when needed.</p>
+
+      <p><strong>7. Platform Availability</strong><br>
+      Chabalingo may be unavailable due to updates, errors, maintenance, or unforeseen technical problems. The developers do not guarantee uninterrupted service and are not responsible for loss of progress or data due to system issues.</p>
+
+      <p><strong>8. Third-Party Links</strong><br>
+      Some sections may include links to external websites for additional learning resources. Chabalingo is not responsible for the safety, content, or practices of third-party websites.</p>
+
+      <p><strong>9. Limitation of Liability</strong><br>
+      Chabalingo and its developers will not be liable for:<br>
+      - Mistakes in learning content<br>
+      - Technical issues or service interruptions<br>
+      - Damages resulting from misuse of the platform<br>
+      - Loss of user data or learning progress<br>
+      The platform is provided “as is”, without any warranties.</p>
+
+      <p><strong>10. Modifications to Terms</strong><br>
+      The developers may revise or update this combined document at any time. Continued use of the platform after changes signifies acceptance of the updated Terms and Privacy Policy.</p>
+
+      <p><strong>11. Governing Law</strong><br>
+      This document shall be governed by and interpreted in accordance with the laws of the Republic of the Philippines. All matters related to the use, operation, and interpretation of the Chabalingo platform shall be subject to applicable national and local legal provisions, including but not limited to:<br>
+      - Republic Act No. 10173 – Data Privacy Act of 2012<br>
+      - Republic Act No. 8792 – Electronic Commerce Act of 2000<br>
+      - Republic Act No. 8293 – Intellectual Property Code of the Philippines<br>
+      - Local government regulations of Cavite City related to cultural preservation and education.</p>
+
+      <h3 class="font-semibold text-[#b36200] mt-6">II. PRIVACY POLICY</h3>
+
+      <p><strong>12. Information</strong><br>
+      Chabalingo may collect the following data:<br>
+      - Personal information (name, email)<br>
+      - Login details and credentials<br>
+      - Usage data (progress, quiz scores, activity logs)<br>
+      - Device and browser information<br>
+      - Feedback voluntarily provided by users</p>
+
+      <p><strong>13. How We Use Your Information</strong><br>
+      Collected data is used to:<br>
+      - Improve user learning experience<br>
+      - Maintain account functionality<br>
+      - Personalize learning modules and recommendations<br>
+      - Analyze platform performance<br>
+      - Ensure security and prevent misuse</p>
+
+      <p><strong>14. Data Protection and Security</strong><br>
+      14.1 Chabalingo implements reasonable security measures to protect user data.<br>
+      14.2 However, no digital platform is fully secure; Chabalingo cannot guarantee absolute protection from unauthorized access or data breaches.<br>
+      14.3 Users are responsible for securing their own passwords and devices.</p>
+
+      <p><strong>15. Data Sharing</strong><br>
+      Chabalingo does not sell, trade, or rent personal information to third parties. Data may only be shared:<br>
+      - When required by law<br>
+      - To comply with legal processes<br>
+      - To protect platform security<br>
+      - With user consent (if needed for future features)</p>
+
+      <p><strong>16. Data Retention</strong><br>
+      User data is stored only as long as necessary for educational and operational purposes. Users may request deletion of their account and data.</p>
+    </div>
+
+    <div class="text-center mt-8">
+      <button id="closeModalBtn" class="px-6 py-2 bg-[#b36200] text-white rounded-lg hover:bg-[#ffcb91] hover:text-[#4a2e05] transition">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+</main>
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+<script>
+  const modal = document.getElementById('termsModal');
+  const openModalBtn = document.getElementById('openModalBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+
+  openModalBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+  });
+
+  closeModalBtn.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  // Close when clicking outside the modal
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+    }
+  });
+</script>

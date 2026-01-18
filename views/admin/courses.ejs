@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="admin-main">
+      <!-- Top Bar -->
+      <header class="admin-topbar">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <!-- Page Wrapper -->
+      <div class="wrap">
+        <section class="shell">
+          <h2 class="dashboard-title">Manage Courses</h2>
+
+          <!-- 🧱 Add Course Form -->
+          <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
+            <h3 class="text-2xl font-semibold text-[#4a2e05] mb-4">Add a New Course</h3>
+            <form action="/admin/courses/add" method="POST" class="grid md:grid-cols-4 gap-4">
+              <input type="text" name="title" placeholder="Course Title" required
+                class="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none md:col-span-1">
+              
+              <input type="text" name="description" placeholder="Short Description"
+                class="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none md:col-span-1">
+
+              <select name="level"
+                class="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none md:col-span-1">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+
+              <button type="submit"
+                class="bg-[#f97316] hover:bg-[#ea580c] text-white px-6 py-3 rounded-lg transition md:col-span-1">
+                ➕ Add
+              </button>
+            </form>
+          </div>
+
+          <!-- 🗂 Toggle Active/Archived Courses -->
+          <div class="flex justify-end items-center mb-6 gap-3">
+            <a href="/admin/courses" 
+              class="px-4 py-2 rounded-lg font-medium
+                      <%= pageTitle === 'Manage Courses' ? 'bg-[#f97316] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' %>">
+              Active Courses
+            </a>
+            <a href="/admin/courses/archived" 
+              class="px-4 py-2 rounded-lg font-medium
+                      <%= pageTitle === 'Archived Courses' ? 'bg-[#f97316] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' %>">
+              Archived Courses
+            </a>
+          </div>
+
+
+          <!-- 🧾 Existing Courses Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% if (courses.length > 0) { %>
+              <% courses.forEach(course => { %>
+                <article 
+                  class="course bg-white p-6 rounded-2xl shadow hover:shadow-lg transition relative flex flex-col justify-between 
+                        h-[250px] w-full overflow-hidden">
+                  
+                  <!-- Title and Description -->
+                    <!-- Title and Description -->
+                    <a href="/admin/courses/<%= course._id %>" class="block mb-4">
+                      <h3 class="text-2xl font-semibold <%= course.archived ? 'text-gray-400 line-through' : 'text-[#f97316]' %> mb-3 truncate">
+                        <%= course.title %>
+                      </h3>
+                      <div class="text-gray-600 mb-4 line-clamp-4 overflow-hidden">
+                        <%- course.description || "No description provided." %>
+                      </div>
+                    </a>
+
+
+                  <!-- Level and Action Buttons -->
+                  <div class="flex justify-between items-center mt-auto">
+                    <span class="bg-[#ffd7b0] px-3 py-1 rounded-lg text-sm font-medium"><%= course.level %></span>
+
+                    <!-- 🗄 Archive / Unarchive -->
+                    <form action="/admin/courses/toggle-archive/<%= course._id %>" method="POST" 
+                          onsubmit="return confirm('<%= course.archived ? 'Unarchive this course?' : 'Archive this course?' %>')">
+                      <button type="submit" 
+                              class="font-semibold transition
+                                     <%= course.archived 
+                                          ? 'text-green-600 hover:text-green-800' 
+                                          : 'text-gray-500 hover:text-gray-700' %>">
+                        <%= course.archived ? '♻️ Unarchive' : '🗄 Archive' %>
+                      </button>
+                    </form>
+                  </div>
+                </article>
+              <% }) %>
+            <% } else { %>
+              <p class="text-gray-500">No courses found. Start by adding one above!</p>
+            <% } %>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,174 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
+}
+
+@font-face {
+  font-family: "Jomolhari";
+  src: url("fonts/Jomolhari-Regular.ttf") format("truetype");
+}
+
+body,
+html {
+  height: 100%;
+}
+
+body {
+  background: url("/img/Chavalingo-BG.png") no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* LOGO */
+.logo-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+
+.logo {
+  height: 80px;
+  width: auto;
+  filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.7));
+}
+
+/* FORM CONTAINER */
+.form-container {
+  background-color: rgba(179, 98, 0, 0.85);
+  backdrop-filter: blur(6px);
+  width: 360px;
+  padding: 25px 25px 35px 25px;
+  border-radius: 20px;
+  border: 2px solid #613c12;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  color: white;
+  text-align: center;
+}
+
+/* HEADER */
+.form-container h2 {
+  font-size: 70px;
+  font-weight: bold;
+  font-family: "Jomhuria";
+  letter-spacing: 1.5px;
+  margin-bottom: -10px;
+}
+
+/* FORM ELEMENTS */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-group label {
+  font-weight: bold;
+  text-align: left;
+  width: 100%;
+  max-width: 280px;
+  font-size: 16px;
+  margin-bottom: 5px;
+  font-family: "Jomolhari", serif;
+}
+
+.form-group input {
+  width: 280px;
+  height: 45px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-family: "Jomolhari", serif;
+  background-color: #fff8e7; /* soft cream background */
+  color: #4a2e05; /* dark brown text */
+  outline: none;
+  transition: 0.2s ease-in-out;
+}
+
+.form-group input::placeholder {
+  color: #9b7a4a; /* muted brown placeholder */
+}
+
+.form-group input:focus {
+  background-color: #fff1c9;
+  box-shadow: 0 0 5px #ffcb91;
+}
+/* FORGOT PASSWORD */
+.forgot-link {
+  text-align: right;
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 20px;
+  margin-right: 35px;
+}
+
+.forgot-link a {
+  color: #f0f0f0;
+  text-decoration: none;
+  font-family: "Jomolhari", serif;
+}
+
+.forgot-link a:hover {
+  text-decoration: underline;
+}
+
+/* LOGIN BUTTON */
+.btn-login {
+  background-color: #ffcb91;
+  color: #b36200;
+  padding: 12px 25px;
+  font-size: 15px;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  font-family: "Jomolhari", serif;
+  width: 130px;
+  height: 45px;
+  box-shadow: 0 4px 0 #d29e68;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-login:hover {
+  background-color: #f5b874;
+  box-shadow: 0 2px 0 #b3774b;
+  transform: translateY(1px);
+}
+
+/* SIGNUP LINK */
+.signup-link p {
+  font-size: 12px;
+  margin-top: 15px;
+  color: white;
+  font-family: "Jomolhari", serif;
+}
+
+.signup-link a {
+  color: #ffd580;
+  text-decoration: none;
+  font-family: "Jomolhari", serif;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+/* PASSWORD TOGGLE ICON */
+.form-group {
+  position: relative; /* allow icon positioning inside input */
+}
+
+.form-group i {
+  position: absolute;
+  right: 40px; /* adjust to align inside the input */
+  top: 45px;
+  cursor: pointer;
+  color: #a96224;
+  transition: color 0.2s;
+}

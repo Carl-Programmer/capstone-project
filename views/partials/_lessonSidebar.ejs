@@ -1,0 +1,20 @@
+<!-- 🧭 Lessons Sidebar (Collapsible) -->
+<aside id="lessonSidebar" class="lesson-sidebar">
+  <div class="sidebar-header">
+    <h2>📘 Modules</h2>
+    <button id="closeLessonSidebar" class="close-btn">×</button>
+  </div>
+
+  <nav class="space-y-2">
+    <% if (lessons && lessons.length > 0) { %>
+      <% lessons.forEach((lesson, i) => { %>
+        <a href="#lesson-<%= i %>" 
+           class="block px-3 py-2 rounded-lg hover:bg-[#fff6ef] transition">
+           <%= lesson.title %>
+        </a>
+      <% }) %>
+    <% } else { %>
+      <p class="text-gray-500 italic">No lessons available yet.</p>
+    <% } %>
+  </nav>
+</aside>

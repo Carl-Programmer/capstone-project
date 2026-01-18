@@ -1,0 +1,39 @@
+To Do Now:
+
+
+
+
+
+
+
+
+Admin
+
+
+
+Users
+
+-notification / password change
+
+
+
+
+
+
+
+
+ux/ui
+
+-empty Terms & Conditions and Privacy Policy.
+
+
+
+lack features IT Elective 3
+
+Users
+-progress should deduct base on the score from quiz ex: 80% then 48% only
+-exam can be taken at around 90% final completion and certificate too
+
+
+Admin
+-maybe add print to paper for feedback too

@@ -1,0 +1,473 @@
+/* 📘 viewCourse.css */
+/* 🧠 Make main area shift when sidebar opens */
+.main {
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 0;
+}
+
+.main.shifted {
+  margin-left: 260px; /* same width as sidebar */
+}
+
+/* Layout */
+.content {
+  padding: 2rem;
+  margin-top: 80px;
+  max-width: 1150px; /* optional cap to avoid ultra-wide stretch */
+  margin-inline: auto; /* centers content when screen > max-width */
+  transition: all 0.3s ease;
+}
+
+.content h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #5a3f20;
+}
+
+.content .level {
+  font-size: 1.125rem;
+  color: #555;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.content .desc {
+  margin-top: 1rem;
+  color: #666;
+  text-align: justify; /* ✅ neat edges on both sides */
+  text-justify: inter-word; /* optional: improves spacing */
+}
+
+/* 📋 Syllabus Section */
+.syllabus {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.syllabus .btn {
+  display: inline-block;
+  margin-top: 0.75rem;
+  background: #f97316;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+}
+
+.syllabus .btn:hover {
+  background: #ea580c;
+}
+
+/* 🧩 Lesson Cards */
+.lesson-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.lesson-card[open] summary span.text-green-600 {
+  font-weight: bold;
+}
+
+.lesson-card summary {
+  cursor: pointer;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #fff6ef;
+  transition: background 0.2s;
+}
+
+.lesson-card summary:hover {
+  background: #ffe8d8;
+}
+
+.lesson-card[open] summary {
+  background: #f97316;
+  color: white;
+}
+
+.lesson-body {
+  padding: 1.5rem;
+  color: #444;
+}
+
+.file-links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.file-btn {
+  background: #ffd7b0;
+  color: #4a2e05;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.file-btn:hover {
+  background: #f97316;
+  color: white;
+}
+
+.file-btn.alt {
+  background: #ffe8d8;
+}
+
+/* 🧭 Sidebar (slides from right) */
+.lesson-sidebar {
+  position: fixed;
+  top: 70px;
+  left: -260px; /* ✅ Move it completely off-screen */
+  width: 260px;
+  height: calc(100vh - 70px);
+  background: #fff;
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  transition: left 0.3s ease-in-out;
+  z-index: 30;
+}
+
+.lesson-sidebar.active {
+  left: 0; /* ✅ Slide into view */
+}
+
+.lesson-sidebar h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.lesson-sidebar nav a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+  color: #4a2e05;
+}
+
+.lesson-sidebar nav a:hover {
+  background: #fff6ef;
+}
+
+#lessonOverlay {
+  z-index: 20; /* below sidebar */
+}
+
+/* Buttons */
+.hamburger-btn {
+  position: fixed;
+  top: 110px;
+  left: 0%;
+  background: #5a3f20;
+  color: white;
+  padding: 0.75rem 1.25rem; /* ✅ bigger clickable area */
+  border-top-right-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  z-index: 9999;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, opacity 0.3s ease;
+  cursor: pointer;
+  font-size: 1.25rem; /* slightly larger icon */
+}
+
+/* Small hover feedback */
+.hamburger-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ✅ Hide button when sidebar is open */
+.hamburger-btn.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.close-btn {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #444;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 🕶️ Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 30;
+}
+
+.hidden {
+  display: none;
+}
+
+/* 🧭 Center only the title and level inside header */
+.content > header {
+  text-align: center;
+}
+
+.content > header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.content > header .level {
+  font-style: italic;
+  color: #555;
+}
+
+.lesson-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.lesson-content th,
+.lesson-content td {
+  border: 1px solid #d6d3d1; /* soft gray */
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.lesson-content th {
+  background-color: #fff7ed; /* light orange tone */
+  color: #4a2e05;
+  font-weight: 600;
+}
+
+/* ✅ Restore bullet and number styling */
+.lesson-content ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.lesson-content ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+/* ✅ Ensure bullet position and spacing */
+.lesson-content li {
+  margin-bottom: 0.25rem;
+}
+
+/* ✅ Optional: style the paragraph inside each list item */
+.lesson-content li p {
+  display: inline; /* prevents line breaks between bullet and text */
+  margin: 0;
+}
+
+/* 🧡 Optional: make bullets orange like your theme */
+.lesson-content ul li::marker {
+  color: #f97316;
+  font-weight: bold;
+}
+
+.assessment-section {
+  transition: all 0.3s ease;
+}
+
+.assessment-section:hover {
+  background-color: #fff4ea;
+}
+
+/* =========================================
+   Responsive Lesson Content
+   ========================================= */
+.lesson-content {
+  overflow-x: hidden;
+  word-wrap: break-word;
+}
+
+/* =========================================
+   🖼️ Click-to-Zoom for Lesson Images
+   ========================================= */
+.lesson-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 10px auto;
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.lesson-content img:hover {
+  transform: scale(1.02);
+}
+
+.lesson-content img {
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lesson-content img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔍 Zoomed image overlay */
+.img-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.img-zoom-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.img-zoom-overlay img {
+  max-width: 95%;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+/* =========================================
+   🎥 Responsive Videos in Lesson Content
+   ========================================= */
+/* 🎥 Responsive videos with full interactivity */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #000;
+  margin: 16px 0;
+}
+
+.video-wrapper iframe,
+.video-wrapper embed,
+.video-wrapper object,
+.video-wrapper video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 12px;
+  display: block;
+  pointer-events: auto; /* ✅ allow clicking and interaction */
+  z-index: 2;
+}
+
+/* Transparent clickable layer to intercept video clicks */
+/* Invisible clickable layer over inline videos */
+.video-click-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+/* Overlay popup container */
+.video-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.video-zoom-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.video-zoom-overlay iframe,
+.video-zoom-overlay video {
+  width: 90%;
+  max-width: 960px;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  background: #000;
+}
+/* =========================================
+   🎥 Click-to-Zoom for Lesson Videos Only
+   ========================================= */
+.video-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.video-zoom-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.video-zoom-overlay iframe,
+.video-zoom-overlay video {
+  width: 90%;
+  max-width: 960px;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  background: #000;
+}
+
+/* Make videos feel interactive */
+.lesson-content .video-wrapper {
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lesson-content .video-wrapper:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+/* =========================================
+   📝 Text Wrapping and Assessment Section
+   ========================================= */
+/* 📝 General text wrapping */
+.lesson-content p,
+.lesson-content blockquote {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 🧩 Keep your assessment section intact */
+.assessment-section {
+  margin-top: 1rem;
+  border-top: 1px solid #f3e5db;
+  background: #fff9f5;
+  border-radius: 0 0 16px 16px;
+  padding: 1.5rem;
+}

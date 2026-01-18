@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= lesson.title %> • Quiz</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/takeQuiz.css">
+</head>
+
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+<%- include('../partials/_topbar') %>
+  </header>
+<form id="examForm" action="/users/quiz/<%= lesson._id %>" method="POST">
+
+  <main class="exam-grid" id="examRoot">
+
+    <section id="questions">
+      <% quiz.questions.forEach((q, i) => { %>
+        <article class="q-card" id="q<%= i+1 %>">
+          <aside class="q-side">
+            <div class="lbl">Question</div>
+            <div class="num"><%= i+1 %></div>
+          </aside>
+
+          <div class="q-body">
+            <p><%= q.questionText %></p>
+
+            <div class="choices">
+              <% q.options.forEach(opt => { %>
+                <label>
+                  <input type="radio"
+                         name="q<%= i %>"
+                         value="<%= opt.trim() %>">
+                  <span><%= opt %></span>
+                </label>
+              <% }) %>
+            </div>
+
+            <div class="q-actions">
+              <a href="#" class="mark" data-mark="<%= i+1 %>">✚ Mark question</a>
+              <button type="button" class="clear-btn" data-clear="q<%= i %>">Clear answer</button>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </section>
+
+    <aside class="exam-rail">
+      <div class="rail-title">Time left :</div>
+      <div class="timer" id="timer">Loading...</div>
+
+      <div class="nav-title">Exam Navigation:</div>
+      <div class="nav-grid" id="navGrid"></div>
+
+      <button type="button" class="finish">Finish attempt</button>
+
+    </aside>
+
+  </main>
+
+</form>
+
+  <button class="to-top" id="toTop" title="Back to top">↑</button>
+
+  <div id="finishModal" class="modal hidden">
+  <div class="modal-box">
+    <h2>Finish Attempt?</h2>
+    <p>You won’t be able to change answers once submitted.</p>
+
+    <div class="modal-actions">
+      <button id="cancelFinish" class="cancel-btn">Cancel</button>
+      <button id="confirmFinish" class="submit-btn">Submit Quiz</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+  const courseId = "<%= quiz.courseId %>";
+  const totalQuestions = Number("<%= quiz.questions.length %>");
+
+  // 🎯 Convert backend seconds → JS countdown
+  const totalSeconds = <%= timeLimit %>; // backend-injected value from route
+  let remaining = totalSeconds;
+
+  const timerEl = document.getElementById("timer");
+
+  function updateTimer() {
+    const hours = Math.floor(remaining / 3600);
+    const minutes = Math.floor((remaining % 3600) / 60);
+    const seconds = remaining % 60;
+
+    // ⏱ Format HH:MM:SS
+    timerEl.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+    // ⏰ Auto-submit when time’s up
+    if (remaining <= 0) {
+      clearInterval(interval);
+      alert("⏰ Time’s up! Your quiz will be submitted automatically.");
+      document.getElementById("examForm").submit(); // ensure form id="quizForm"
+    }
+
+    remaining--;
+  }
+
+  // 🕒 Initialize
+  updateTimer();
+  const interval = setInterval(updateTimer, 1000);
+
+
+</script>
+
+  <script src="/js/takeQuiz.js"></script>
+</body>
+</html>

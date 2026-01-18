@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Certificates</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/certificates.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/main.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %>
+
+      <div class="outer">
+        <section class="canvas">
+<div class="grid">
+  <% if (certs.length === 0) { %>
+    <div class="muted-box">No certificates to show</div>
+  <% } %>
+
+  <% certs.forEach(c => { %>
+    <div class="cert-card primary">
+      <h3 class="cert-title">
+      <%= c.courseId && c.courseId.title ? c.courseId.title : "Course Deleted" %>
+    </h3>
+
+
+      <div class="cert-img">
+        <iframe 
+          src="/uploads/certificates/<%= c.file %>" 
+          width="100%" 
+          height="200px">
+        </iframe>
+      </div>
+
+      <a href="/uploads/certificates/<%= c.file %>" 
+         target="_blank" 
+         class="btn">
+        View Certificate
+      </a>
+    </div>
+  <% }) %>
+</div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

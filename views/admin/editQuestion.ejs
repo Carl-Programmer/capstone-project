@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="bg-[#fffaf4] text-[#4a2e05] min-h-screen">
+  <div class="app flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main flex-1 p-8">
+      <header class="admin-topbar mb-8">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <section class="bg-white p-8 rounded-2xl shadow-md border border-[#f3e5db] max-w-3xl mx-auto">
+        <h2 class="text-3xl font-bold mb-6 text-[#4a2e05]">✏️ Edit Question</h2>
+
+        <form action="/admin/quiz/<%= quiz._id %>/edit/<%= index %>" method="POST" class="space-y-4">
+          <div>
+            <label class="block font-semibold">Question:</label>
+            <textarea name="questionText" rows="2" required
+              class="w-full border border-gray-300 rounded-lg p-2"><%= question.questionText %></textarea>
+          </div>
+
+          <div>
+            <label class="block font-semibold">Options (one per line):</label>
+            <textarea name="options" id="options" rows="3" required
+              class="w-full border border-gray-300 rounded-lg p-2"><%= question.options.join('\n') %></textarea>
+          </div>
+
+          <div>
+            <label class="block font-semibold">Correct Answer:</label>
+            <select name="correctAnswer" id="correctAnswer"
+              class="w-full border border-gray-300 rounded-lg p-2">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-6">
+            <a href="/admin/lessons/<%= quiz.lessonId %>/quiz"
+               class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-[#4a2e05]">Cancel</a>
+            <button type="submit"
+               class="px-6 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white transition">💾 Save Changes</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Elements
+    const optionsTextarea = document.getElementById('options');
+    const correctSelect = document.getElementById('correctAnswer');
+
+    // Pre-fill correct answer from backend
+    const currentCorrect = `<%- question.correctAnswer.replace(/'/g, "\\'") %>`;
+
+    function refreshDropdown() {
+      const options = optionsTextarea.value
+        .split('\n')
+        .map(o => o.trim())
+        .filter(o => o.length > 0);
+
+      correctSelect.innerHTML = '';
+
+      if (options.length === 0) {
+        correctSelect.innerHTML = '<option value="">-- Add options first --</option>';
+        return;
+      }
+
+      options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+
+        // Auto-select if matches the current correct answer
+        if (opt.trim() === currentCorrect.trim()) {
+          option.selected = true;
+        }
+
+        correctSelect.appendChild(option);
+      });
+    }
+
+    // Initialize dropdown
+    refreshDropdown();
+
+    // Update dropdown whenever options change
+    optionsTextarea.addEventListener('input', refreshDropdown);
+  </script>
+</body>
+</html>

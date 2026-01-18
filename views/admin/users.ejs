@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+
+  <style>
+    /* ==========================
+       FILTER DROPDOWN
+       ========================== */
+    .feedback-filter {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-form {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .filter-form label {
+      font-weight: 600;
+    }
+
+    .filter-form select {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-form select:hover {
+      border-color: #f97316; /* Orange accent */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <div class="wrap">
+        <section class="shell">
+          <h2 class="dashboard-title mb-6">Manage Users</h2>
+
+          <!-- 🔶 Filter Dropdown Section -->
+          <div class="feedback-filter">
+            <form action="/admin/users" method="GET" class="filter-form">
+              <label for="role">Role:</label>
+              <select name="role" id="role" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="user" <%= selectedRole === 'user' ? 'selected' : '' %>>User</option>
+                <option value="admin" <%= selectedRole === 'admin' ? 'selected' : '' %>>Admin</option>
+              </select>
+
+              <label for="status">Status:</label>
+              <select name="status" id="status" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="active" <%= selectedStatus === 'active' ? 'selected' : '' %>>Active</option>
+                <option value="suspended" <%= selectedStatus === 'suspended' ? 'selected' : '' %>>Suspended</option>
+              </select>
+
+              <label for="archived">Archived:</label>
+              <select name="archived" id="archived" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="false" <%= selectedArchived === 'false' ? 'selected' : '' %>>Not Archived</option>
+                <option value="true" <%= selectedArchived === 'true' ? 'selected' : '' %>>Archived</option>
+              </select>
+            </form>
+          </div>
+
+          <!-- User Table -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <table class="w-full border-collapse text-left">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="py-3 px-4 font-semibold">Name</th>
+                  <th class="py-3 px-4 font-semibold">Username</th>
+                  <th class="py-3 px-4 font-semibold">Email</th>
+                  <th class="py-3 px-4 font-semibold">Role</th>
+                  <th class="py-3 px-4 font-semibold text-center">Actions</th>
+                  <th class="py-3 px-4 font-semibold">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% if (users.length > 0) { %>
+                  <% users.forEach(u => { %>
+                    <tr class="border-t hover:bg-gray-50 transition">
+                      <td class="py-3 px-4"><%= u.givenName %> <%= u.surname %></td>
+                      <td class="py-3 px-4"><%= u.username %></td>
+                      <td class="py-3 px-4"><%= u.email %></td>
+                      <td class="py-3 px-4 capitalize"><%= u.role %></td>
+
+                      <!-- ACTIONS -->
+                      <td class="py-3 px-4 text-center flex gap-3 items-center">
+                        <!-- EDIT -->
+                        <a href="/admin/users/edit/<%= u._id %>" class="text-blue-600 hover:underline">Edit</a>
+
+                        <% if (u.role !== 'admin') { %>
+                          <% if (!u.archived) { %>
+                            <!-- ARCHIVE (requires reason) -->
+                            <form action="/admin/users/archive/<%= u._id %>" method="POST" data-action="archive">
+                              <input type="hidden" name="reasonArchived" value="">
+                              <button class="text-red-600 hover:underline">Archive</button>
+                            </form>
+                          <% } else { %>
+                            <!-- UNARCHIVE (no reason needed) -->
+                            <form action="/admin/users/unarchive/<%= u._id %>" method="POST" data-action="unarchive"
+                              onsubmit="return confirm('Unarchive this user? They will be able to log in again.')">
+                              <button class="text-green-600 hover:underline">Unarchive</button>
+                            </form>
+                          <% } %>
+                        <% } else { %>
+                          <!-- Admin label -->
+                          <span class="text-gray-500 italic">Admin</span>
+                        <% } %>
+                      </td>
+
+                      <!-- STATUS -->
+                      <td class="py-3 px-4">
+                        <% if (u.role !== 'admin') { %>
+                          <% if (!u.archived) { %>
+                            <!-- TOGGLE STATUS -->
+                            <form 
+                              action="/admin/users/toggle-status/<%= u._id %>" 
+                              method="POST"
+                              data-action="<%- u.status === 'active' ? 'suspend' : 'activate' %>">
+                              <input type="hidden" name="reasonSuspended" value="">
+                              <button type="submit" class="<%= u.status === 'active' ? 'text-yellow-600' : 'text-green-600' %>">
+                                <%= u.status === 'active' ? 'Suspend' : 'Activate' %>
+                              </button>
+                            </form>
+                          <% } else { %>
+                            <span class="text-gray-400 italic">—</span>
+                          <% } %>
+                        <% } else { %>
+                          <span class="text-gray-400 italic">—</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="py-4 text-center text-gray-500 italic">
+                      No users found
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🧠 JS for Reason Prompts -->
+  <script>
+    document.addEventListener('submit', function (e) {
+      const form = e.target;
+      const action = form.dataset.action; // 'archive' | 'unarchive' | 'suspend' | 'activate'
+
+      if (action === 'archive') {
+        const reason = prompt('Please enter a reason for archiving this user:');
+        if (!reason) {
+          alert('Action cancelled — reason is required.');
+          e.preventDefault();
+          return;
+        }
+        form.querySelector('input[name="reasonArchived"]').value = reason;
+
+      } else if (action === 'suspend') {
+        const reason = prompt('Please enter a reason for suspending this user:');
+        if (!reason) {
+          alert('Action cancelled — reason is required.');
+          e.preventDefault();
+          return;
+        }
+        form.querySelector('input[name="reasonSuspended"]').value = reason;
+      }
+      // no prompt for activate/unarchive
+    });
+  </script>
+</body>
+</html>

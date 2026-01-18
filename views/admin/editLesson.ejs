@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %> | Edit Lesson</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-[#fffaf4] text-[#4a2e05] min-h-screen">
+  <div class="app flex min-h-screen">
+    <!-- 📚 Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- 🌟 Main Content -->
+    <main class="admin-main flex-1 p-8">
+      <header class="admin-topbar mb-8">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <!-- ✏️ Edit Lesson Card -->
+      <div class="bg-white rounded-2xl p-6 w-[800px] mx-auto shadow-lg border border-[#f3e5db]">
+        <h3 class="text-2xl font-semibold mb-4 text-[#4a2e05] flex items-center gap-2">
+          ✏️ Edit Lesson
+        </h3>
+
+        <form action="/admin/lessons/edit/<%= lesson._id %>" method="POST">
+          <input type="hidden" name="courseId" value="<%= course._id %>">
+
+          <!-- Lesson Title -->
+          <input type="text" name="title" value="<%= lesson.title %>" placeholder="Lesson Title" required
+                 class="w-full border border-gray-300 rounded-lg p-2 mb-3 focus:ring-2 focus:ring-[#f97316] outline-none">
+
+          <!-- Lesson Content (TinyMCE) -->
+          <textarea name="description" rows="8" placeholder="Lesson Content"
+                    class="w-full border border-gray-300 rounded-lg p-2 mb-4"><%- lesson.description %></textarea>
+<p class="text-sm text-gray-500 mt-2">
+💡 Tip: To include a video, click <strong>Insert → Media</strong> and paste a YouTube or Google Drive link.
+</p>
+
+
+          <!-- Buttons -->
+          <div class="flex justify-end gap-2">
+            <a href="/admin/courses/<%= course._id %>"
+               class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition">
+              ✖ Cancel
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white transition">
+              💾 Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
+
+
+
+<!-- Include HugeRTE (self-hosted) -->
+<script src="/js/hugerte/hugerte.min.js"></script>
+<script src="/js/hugerte-config.js"></script>

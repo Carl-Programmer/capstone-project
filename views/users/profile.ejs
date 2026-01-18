@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • My Profile</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/profile.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/main.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %>
+
+      <div class="wrap">
+        <section class="shell">
+          <div class="panel">
+            <h2>My Profile</h2>
+
+            <div class="profile-grid">
+              <!-- Avatar -->
+              <div class="avatar-block">
+                <div class="photo-wrap">
+                  <!-- Crisp circular profile photo -->
+                  <img 
+                  id="profilePhoto"
+                  src="<%= user.avatar ? '/uploads/avatars/' + user.avatar + '?v=' + Date.now() : '/img/my-profile.png' %>"
+                  alt="Profile photo"
+                >
+
+
+                  <!-- Pencil icon toggle -->
+                  <button class="edit-btn" id="editToggle" type="button" title="Toggle Edit Mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#5A3F20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 20h9"/>
+                      <path d="M16.5 3.5l4 4L7 21l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="display-name"><%= user.givenName %> <%= user.surname %></div>
+                <p class="text-sm text-gray-600">@<%= user.username %></p>
+              </div>
+
+              <!-- Form -->
+              <form id="profileForm" class="form" action="/users/updateProfile" method="POST" enctype="multipart/form-data">
+                
+                <input 
+                  type="file"
+                  id="avatarInput"
+                  name="avatar"
+                  accept="image/*"
+                  class="hidden"
+                />
+
+                <button id="changePhotoBtn" class="change-photo-btn hidden" type="button">
+                  Change Photo
+                </button>
+
+                <!-- 🗑️ Delete Photo Button -->
+<button id="deletePhotoBtn" class="delete-photo-btn hidden" type="button">
+  Delete Photo
+</button>
+
+                
+                <div class="pill">
+                  <input type="text" name="givenName" value="<%= user.givenName %>" placeholder="Given Name" disabled>
+                </div>
+                <div class="pill">
+                  <input type="text" name="surname" value="<%= user.surname %>" placeholder="Surname" disabled>
+                </div>
+
+                <div class="pill">
+                  <select name="gender" disabled>
+                    <option value="Male" <%= user.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                    <option value="Female" <%= user.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                    <option value="Prefer not to say" <%= user.gender === 'Prefer not to say' ? 'selected' : '' %>>Prefer not to say</option>
+                  </select>
+                </div>
+
+                <div class="pill">
+                  <input type="date" name="dateOfBirth" value="<%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>" disabled>
+                </div>
+
+                <div class="pill">
+                  <input type="email" name="email" value="<%= user.email %>" disabled>
+                </div>
+
+                <div class="actions hidden" id="editActions">
+                  <button class="btn secondary" type="button" id="cancelEdit">Cancel</button>
+                  <button class="btn" type="submit">Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+<script>
+  const editToggle = document.getElementById('editToggle');
+  const form = document.getElementById('profileForm');
+  const inputs = form.querySelectorAll('.pill input, .pill select');
+  const actions = document.getElementById('editActions');
+  const cancelEdit = document.getElementById('cancelEdit');
+  const changePhotoBtn = document.getElementById('changePhotoBtn');
+  const avatarInput = document.getElementById('avatarInput');
+  
+  // 🆕 Delete photo button
+  const deletePhotoBtn = document.getElementById('deletePhotoBtn');
+  const profilePhoto = document.getElementById('profilePhoto');
+
+  let editMode = false;
+
+  // =============================
+  // Toggle Edit Mode
+  // =============================
+  editToggle.addEventListener('click', () => {
+    editMode = !editMode;
+
+    inputs.forEach(i => i.disabled = !editMode);
+    actions.classList.toggle('hidden', !editMode);
+    editToggle.classList.toggle('active', editMode);
+
+    // show/hide photo buttons
+    changePhotoBtn.classList.toggle('hidden', !editMode);
+    deletePhotoBtn.classList.toggle('hidden', !editMode);
+  });
+
+  // =============================
+  // Cancel Edit
+  // =============================
+  cancelEdit.addEventListener('click', () => {
+    editMode = false;
+    inputs.forEach(i => i.disabled = true);
+    actions.classList.add('hidden');
+    editToggle.classList.remove('active');
+    changePhotoBtn.classList.add('hidden');
+    deletePhotoBtn.classList.add('hidden');
+    form.reset();
+  });
+
+  // =============================
+  // Change Photo
+  // =============================
+  changePhotoBtn.addEventListener('click', () => {
+    avatarInput.click();
+  });
+
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files[0];
+    if (file) {
+      profilePhoto.src = URL.createObjectURL(file);
+    }
+  });
+
+  // =============================
+  // 🗑️ Delete Photo
+  // =============================
+  deletePhotoBtn.addEventListener('click', async () => {
+    if (!confirm("Are you sure you want to delete your profile picture?")) return;
+
+    try {
+      const res = await fetch('/users/deleteAvatar', {
+        method: 'POST'
+      });
+
+      if (res.ok) {
+        // Optional fade animation
+        profilePhoto.style.opacity = '0.3';
+        setTimeout(() => {
+          profilePhoto.src = '/img/my-profile.png';
+          profilePhoto.style.opacity = '1';
+        }, 200);
+        alert('✅ Your profile picture has been reset to default.');
+      } else {
+        alert('⚠️ Error deleting profile picture.');
+      }
+    } catch (err) {
+      console.error('Delete photo error:', err);
+      alert('Something went wrong.');
+    }
+  });
+</script>
+
+
+</body>
+</html>

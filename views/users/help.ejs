@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Help</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/help.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/main.js"></script>
+  <script defer src="/js/help.js"></script>
+</head>
+<body>
+      <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %>
+
+          <div class="outer">
+        <section class="panel">
+          <div class="section">
+            <h2>User Guide</h2>
+            <a class="guide-pill" href="#" title="Open user guide">
+              <div class="guide-thumb"><img id="userGuideImg" src="/img/user-guide.png" alt="User guide image"></div>
+              <div class="guide-text">View User Guides/ Tutorials</div>
+            </a>
+          </div>
+
+          <div class="section card">
+            <h2>Feedback</h2>
+            <div class="textarea-wrap">
+              <textarea placeholder="Send us a message.."></textarea>
+            </div>
+            <div class="btn-row">
+              <button id="feedbackBtn" class="btn" type="button">Submit</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- USER GUIDE MODAL -->
+<div id="userGuideModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+  <div class="bg-white w-full max-w-4xl rounded-2xl shadow-lg overflow-y-auto max-h-[85vh] p-6 relative">
+    <h2 class="text-xl sm:text-2xl font-bold text-[#4a2e05] mb-4 text-center">Chabalingo User Guide</h2>
+
+<div class="text-sm sm:text-base text-gray-700 space-y-4 leading-relaxed">
+
+  <p>Welcome to <strong>Chabalingo</strong> — a Kabiteño Chavacano Web-Based Language Learning Platform designed to promote the learning, preservation, and appreciation of the Chavacano language of Cavite City. This User Guide will help you navigate through the features and functions of the system.</p>
+
+  <!-- ============================== -->
+  <h3 class="font-semibold text-[#b36200] mt-6 text-lg">I. USER FEATURES</h3>
+  <!-- ============================== -->
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">1. Login, Register, and Forgot/Reset Password</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li><strong>Register:</strong> Fill out the registration form and create your account.</li>
+    <li><strong>Login:</strong> Enter your email and password to access your dashboard.</li>
+    <li><strong>Forgot Password:</strong> Click “Forgot Password?” and follow the steps to reset via your registered email.</li>
+  </ul>
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">2. Dashboard</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Displays a <strong>general overview</strong> of your learning progress.</li>
+    <li>Shows <strong>today’s date</strong>, <strong>course status</strong>, and any <strong>pending lessons</strong>.</li>
+    <li>Quick access to your enrolled courses.</li>
+  </ul>
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">3. Courses</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Browse available <strong>Chavacano language courses</strong>.</li>
+    <li>Click <strong>View/Enroll</strong> to start learning modules.</li>
+    <li>Each course includes <strong>quizzes</strong> and a <strong>final examination</strong>.</li>
+    <li>Passing the final exam unlocks a completion certificate.</li>
+  </ul>
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">4. Certificates</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>View and download your <strong>Certificate of Completion</strong> once you pass the final exam.</li>
+  </ul>
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">5. Help</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Access this <strong>User Guide</strong> for instructions and platform information.</li>
+    <li>Submit feedback directly to the admin via the text box provided.</li>
+  </ul>
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">6. About Us</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Learn more about Chabalingo and team.</li>
+    <li>Understand how the platform aligns with <strong>UN SDG Goal 4: Quality Education</strong> and supports Cavite City’s cultural heritage.</li>
+  </ul>
+
+  <h4 class="font-semibold text-[#4a2e05] mt-4">7. Settings</h4>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Update your <strong>profile information</strong> such as name, profile picture, and other details.</li>
+    <li>Change your <strong>password</strong> anytime for account security.</li>
+    <li>Turn <strong>notifications on or off</strong> for new courses or updates.</li>
+  </ul>
+
+</div>
+
+
+    <div class="text-center mt-8">
+      <button id="closeGuideBtn"
+        class="px-6 py-2 bg-[#b36200] text-white rounded-lg hover:bg-[#ffcb91] hover:text-[#4a2e05] transition">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+    </main>
+  </div>
+
+
+<script>
+  // USER GUIDE MODAL FUNCTIONALITY
+const userGuideModal = document.getElementById('userGuideModal');
+const userGuideBtn = document.querySelector('.guide-pill');
+const closeGuideBtn = document.getElementById('closeGuideBtn');
+
+userGuideBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  userGuideModal.classList.remove('hidden');
+});
+
+closeGuideBtn.addEventListener('click', () => {
+  userGuideModal.classList.add('hidden');
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === userGuideModal) {
+    userGuideModal.classList.add('hidden');
+  }
+});
+</script>
+</body>
+</html>

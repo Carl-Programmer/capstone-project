@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin • Feedback</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/feedback.css"><!-- optional if you make one -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/adminFeedback.js"></script>
+</head>
+<body class="bg-[#fffaf4]">
+  <div class="app">
+    <%- include('../partials/adminSidebar') %>
+
+    <main class="main">
+      <%- include('../partials/adminTopbar') %>
+
+      <!-- ✅ WRAPPED CONTENT -->
+      <div class="wrap">
+        <section class="shell">
+          <h1 class="text-3xl font-bold mb-6">User Feedback</h1>
+
+          <div class="feedback-filter">
+          <form action="/admin/feedback" method="get" class="filter-form">
+            <label for="filter">Show:</label>
+            <select name="filter" id="filter" onchange="this.form.submit()">
+              <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All</option>
+              <option value="pending" <%= filter === 'pending' ? 'selected' : '' %>>Pending</option>
+              <option value="reviewed" <%= filter === 'reviewed' ? 'selected' : '' %>>Reviewed</option>
+              <option value="archived" <%= filter === 'archived' ? 'selected' : '' %>>Archived</option>
+            </select>
+          </form>
+        </div>
+
+
+          <div class="grid gap-4">
+            <% if (feedbacks.length === 0) { %>
+              <p class="text-gray-500">No feedback messages yet.</p>
+            <% } else { %>
+              <% feedbacks.forEach(f => { %>
+<article class="feedback-card">
+  <p class="feedback-message"><%= f.message %></p>
+  <button class="toggle-btn">Show More</button>
+
+  <div class="feedback-footer">
+    <p class="feedback-from">
+      From: <%= f.userId ? f.userId.username : 'Guest' %> •
+      <%= new Date(f.createdAt).toLocaleString() %>
+    </p>
+
+    <div class="feedback-status">
+      <span class="status-badge <%= f.status %>">
+        <%= f.status.charAt(0).toUpperCase() + f.status.slice(1) %>
+      </span>
+
+      <% if (f.status === 'pending') { %>
+        <form action="/admin/feedback/<%= f._id %>/mark-reviewed" method="POST">
+          <button type="submit" class="mark-btn">Mark as Reviewed</button>
+        </form>
+      <% } %>
+
+      <% if (!f.archived) { %>
+        <form action="/admin/feedback/<%= f._id %>/archive" method="POST">
+          <button type="submit" class="mark-btn text-amber-600 hover:text-amber-700">
+            Archive
+          </button>
+        </form>
+      <% } else { %>
+        <span class="archived-label">Archived</span>
+      <% } %>
+    </div>
+  </div>
+</article>
+              <% }) %>
+            <% } %>
+          </div>
+        </section>
+      </div>
+      <!-- ✅ END WRAP -->
+    </main>
+  </div>
+</body>
+</html>
+

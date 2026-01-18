@@ -1,0 +1,57 @@
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+<link rel="stylesheet" href="/css/topbar.css">
+<script src="/js/topbar.js" defer></script>
+
+<header class="topbar">
+<button id="toggleSidebar" class="text-3xl px-4 py-2 block lg:hidden">☰</button>
+
+  <!-- Logo links to dashboard -->
+  <div class="logo-box">
+    <a href="/users/dashboard" class="logo-link">
+      <img src="/img/Chabalingo-Logo 1.png" alt="Logo">
+    </a>
+  </div>
+
+<div class="page-title <%= pageTitle.length > 20 ? 'long' : '' %>">
+  <span><%= pageTitle %></span>
+</div>
+
+
+
+  <form class="search" role="search" onsubmit="return false;">
+    <div class="icon search-icon">
+      <i class="fas fa-search"></i>
+    </div>
+    <input type="text" placeholder="Search" />
+  </form>
+
+  <div class="right-tools">
+<div class="notif-wrapper">
+  <div class="icon notif-icon">
+    <i class="fas fa-bell"></i>
+    <span class="notif-dot hidden" id="notifDot"></span>
+  </div>
+
+<div class="notif-dropdown hidden" id="notifDropdown">
+  <div class="notif-list"></div>   <!-- scrollable -->
+  <div class="view-all">View all notifications</div> <!-- fixed bottom -->
+</div>
+
+
+</div>
+
+
+    <!-- Avatar links to profile -->
+    <a href="/users/profile" class="avatar-link">
+      <div class="avatar">
+        <img 
+          src="<%= user && user.avatar ? '/uploads/avatars/' + user.avatar : '/img/your-avatar.png' %>" 
+          alt="<%= user ? user.firstName + ' ' + user.lastName : 'Avatar' %>">
+      </div>
+    </a>
+  </div>
+</header>
+
+

@@ -1,0 +1,60 @@
+<script src="/js/admin.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+/>
+
+
+
+<!-- views/partials/adminSidebar.ejs -->
+<aside class="sidebar">
+  <nav class="nav flex flex-col gap-2">
+    <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[22px] text-[color:var(--text)]
+      transition-all duration-500 ease-out hover:bg-[#faf7f2] hover:translate-x-1
+      [&.active]:bg-[#ffd7b0] [&.active]:shadow-md [&.active]:scale-[1.02]">
+      <div class="icon w-9 h-9 flex items-center justify-center rounded-md overflow-hidden">
+        <img src="/img/icon-dashboard.png" alt="" class="w-[70%] h-[70%] object-contain" />
+      </div>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[22px] text-[color:var(--text)]
+      transition-all duration-500 ease-out hover:bg-[#faf7f2] hover:translate-x-1
+      [&.active]:bg-[#ffd7b0] [&.active]:shadow-md [&.active]:scale-[1.02]">
+      <div class="icon w-9 h-9 flex items-center justify-center rounded-md">
+        <i class="fa-solid fa-users" style="color: #A96224; font-size: 1.6rem;"></i>
+      </div>
+
+      <span>Manage Users</span>
+    </a>
+
+    <a href="/admin/courses" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[22px] text-[color:var(--text)]
+      transition-all duration-500 ease-out hover:bg-[#faf7f2] hover:translate-x-1
+      [&.active]:bg-[#ffd7b0] [&.active]:shadow-md [&.active]:scale-[1.02]">
+      <div class="icon w-9 h-9 flex items-center justify-center rounded-md overflow-hidden">
+        <img src="/img/icon-course.png" alt="" class="w-[70%] h-[70%] object-contain" />
+      </div>
+      <span>Manage Courses</span>
+    </a>
+
+    <a href="/admin/feedback" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[22px] text-[color:var(--text)]
+      transition-all duration-500 ease-out hover:bg-[#faf7f2] hover:translate-x-1
+      [&.active]:bg-[#ffd7b0] [&.active]:shadow-md [&.active]:scale-[1.02]">
+      <div class="icon w-9 h-9 flex items-center justify-center rounded-md overflow-hidden">
+        <i class="fa-solid fa-comments" style="color: #A96224; font-size: 1.6rem;"></i>
+      </div>
+      <span>Feedback</span>
+    </a>
+  </nav>
+
+  <nav class="nav logout mt-8 border-t-4 border-[color:var(--line)] pt-4">
+    <a href="#" id="adminLogoutBtn"
+       class="flex items-center gap-3 px-4 py-3 rounded-xl text-[22px] text-[color:var(--text)]
+       transition-all duration-500 ease-out hover:bg-[#faf7f2] hover:translate-x-1">
+      <div class="icon w-9 h-9 flex items-center justify-center rounded-md overflow-hidden">
+        <img src="/img/icon-logout.png" alt="" class="w-[70%] h-[70%] object-contain" />
+      </div>
+      <span>Logout</span>
+    </a>
+  </nav>
+</aside>

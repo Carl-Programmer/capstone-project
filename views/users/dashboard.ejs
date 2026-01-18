@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/main.js"></script>
+  <script defer src="/js/dashboard.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %><div class="wrap">
+        <div class="shell">
+          <!-- Use the same wrapper pattern as Courses -->
+          <section class="dashboard-grid">
+            <!-- LEFT COLUMN -->
+            <div>
+              <section class="card">
+                <div class="card-body">
+                  <h3>My Status</h3>
+                  <div class="status">
+                    <div class="stat">
+                      <div class="stat-title">Total Courses Enrolled</div>
+                      <div class="stat-number"><%= totalEnrolled %></div>
+                    </div>
+
+                    <div class="stat">
+                      <div class="stat-title">My Certificates</div>
+                      <div class="cert-row">
+                        <div class="cert-img"><img src="/img/certificate.png" alt="Certificate"></div>
+                        <div class="circle-badge"><%= certificates %></div>
+                      </div>
+                      <a href="#" class="stat-link">Complete all Chabacano courses</a>
+                    </div>
+
+                    <div class="stat">
+                      <div class="stat-title">Days Login</div>
+                      <div class="stat-number"><%= loginDays %></div>
+                      <div class="stat-footnote">Days</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="card">
+                <div class="card-body">
+                  <h3>My Courses</h3>
+                  <table class="courses">
+                    <colgroup>
+                      <col style="width:70px">
+                      <col>
+                      <col style="width:140px">
+                    </colgroup>
+                    <thead>
+                      <tr><th>#</th><th>Course Name</th><th>Progress</th></tr>
+                    </thead>
+                    <tbody>
+                      <% myCourses.forEach(c => { %>
+                        <tr>
+                          <td><%= c.index %></td>
+                          <td><%= c.title %></td>
+                          <td><%= c.progress %>%</td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <aside>
+              <section class="card calendar">
+                <div class="cal-head">
+                  <div class="cal-title" id="calTitle">—</div>
+                  <div style="display:flex; gap:8px">
+                    <div class="icon" id="prevMonth"><img src="/img/icon-prev.png" alt="Prev"></div>
+                    <div class="icon" id="nextMonth"><img src="/img/icon-next.png" alt="Next"></div>
+                  </div>
+                </div>
+
+                <div class="cal-grid" aria-hidden="true">
+                  <div class="cal-cell hd">Mo</div><div class="cal-cell hd">Tu</div><div class="cal-cell hd">We</div>
+                  <div class="cal-cell hd">Th</div><div class="cal-cell hd">Fr</div><div class="cal-cell hd">Sa</div>
+                  <div class="cal-cell hd">Su</div>
+                </div>
+                <div class="cal-grid" id="calDays"></div>
+              </section>
+
+              <section class="card">
+                <div class="card-body">
+                  <h3>Pending Task</h3>
+                  <div class="list">
+                    <% if (!pendingActivity) { %>
+                      <div class="text-gray-500 italic">No Pending</div>
+                    <% } else { %>
+                      <div class="item">
+                        <div class="thumb">
+                          <img src="/img/lesson.png" alt="Lesson Icon">
+                        </div>
+                        <div>
+                          <%= pendingActivity.courseTitle %>: <%= pendingActivity.lessonTitle %>
+                          <div class="meta">
+                            Lesson —
+                            <a href="/courses/<%= pendingActivity.courseId %>/view?focus=<%= pendingActivity.lessonId %>"
+                               class="text-blue-600 hover:underline">
+                              Continue Lesson
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

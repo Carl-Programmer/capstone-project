@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error • Chavalingo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  />
+
+  <style>
+    @keyframes fadeInOut {
+      0%,100% { opacity: 0; transform: translateY(-10px) translateX(-50%); }
+      10%,90% { opacity: 1; transform: translateY(0) translateX(-50%); }
+    }
+    .animate-fade {
+      animation: fadeInOut 4s ease forwards;
+    }
+  </style>
+</head>
+
+<body class="bg-[#fef3e2] flex flex-col justify-center items-center h-screen text-[#4a2e05]">
+  <div
+    class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium z-50 animate-fade"
+  >
+    <i class="fas fa-exclamation-triangle mr-2"></i>
+    <%= errorMessage %>
+  </div>
+
+  <div class="text-center mt-12">
+    <img src="/img/Chavalingo-Logo-header.png" alt="Chavalingo Logo" class="h-24 mx-auto mb-6">
+    <h1 class="text-3xl font-bold mb-2 font-[Jomhuria] text-[#a35400]">Oops! Something Went Wrong</h1>
+    <p class="text-[#5a3a1c] mb-6 text-lg">We couldn't complete your password reset.</p>
+    <a href="/forgot-password" class="bg-[#FFCB91] text-[#B36200] px-6 py-2 rounded-full font-[Jomhuria] text-xl shadow-md hover:bg-[#f5b874] transition-all duration-200">
+      Try Again
+    </a>
+  </div>
+</body>
+</html>

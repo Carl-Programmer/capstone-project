@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="bg-[#fffaf4] text-[#4a2e05] min-h-screen">
+  <div class="app flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main flex-1 p-8">
+      <header class="admin-topbar mb-8">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+<!-- ✅ Toast Notification -->
+<!-- ✅ Toast Notification -->
+<div id="toast"
+     class="fixed top-6 right-6 hidden bg-green-500 text-white text-sm px-4 py-3 rounded-lg shadow-md transition-all duration-300">
+  💾 Quiz settings saved successfully!
+</div>
+
+      <section class="bg-white p-8 rounded-2xl shadow-md border border-[#f3e5db] max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-[#4a2e05] flex items-center gap-2">
+                🧩 Manage Assessment for <%= lesson.title %>
+            </h2>
+            
+            <!-- 🔙 Back Button -->
+            <a href="/admin/courses/<%= lesson.courseId %>"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-[#4a2e05] font-medium transition">
+                ⬅ Back
+            </a>
+            </div>
+
+ <!-- 🧩 Quiz Settings Section -->
+<section class="bg-white p-8 rounded-2xl shadow-md border border-[#f3e5db] max-w-4xl mx-auto mb-8">
+  <h3 class="text-2xl font-semibold mb-3 text-[#4a2e05]">🧠 Quiz Settings</h3>
+
+  <form action="/admin/lessons/<%= lesson._id %>/quiz/settings" method="POST" class="grid grid-cols-2 gap-4">
+    <!-- Time Limit -->
+    <div class="col-span-2 sm:col-span-1">
+      <label class="block font-semibold mb-1">Time Limit (minutes)</label>
+      <input 
+        type="number" 
+        name="timeLimit" 
+        value="<%= quiz?.timeLimit ? quiz.timeLimit / 60 : 30 %>" 
+        min="1"
+        class="w-full border border-gray-300 rounded-lg p-2"
+      >
+    </div>
+
+    <!-- Hidden Grading Method (always highest) -->
+    <input type="hidden" name="gradingMethod" value="highest">
+
+    <!-- Description -->
+    <div class="col-span-2">
+      <label class="block font-semibold mb-1">Quiz Description / Instructions</label>
+      <textarea 
+        name="description" 
+        rows="3" 
+        placeholder="Write quiz instructions or rules here..."
+        class="w-full border border-gray-300 rounded-lg p-2"
+      ><%= quiz?.description || 'Answer all questions carefully. You must score at least the passing grade to pass this quiz.' %></textarea>
+    </div>
+
+    <div class="col-span-2 flex justify-end mt-4">
+      <button 
+        type="submit" 
+        class="px-4 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white font-medium"
+      >
+        💾 Save Quiz Settings
+      </button>
+    </div>
+  </form>
+</section>
+
+
+        <% if (quiz) { %>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xl font-semibold">Quiz Title: <%= quiz.title %></h3>
+              <a href="#" id="addQuestionBtn"
+                 class="px-4 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white transition">➕ Add Question</a>
+            </div>
+
+            <% if (quiz.questions.length > 0) { %>
+              <% quiz.questions.forEach((q, index) => { %>
+                <div class="border border-gray-200 rounded-lg p-4 bg-[#fff9f5]">
+                  <p class="font-semibold">Question <%= index + 1 %>: <%= q.questionText %></p>
+                  <ul class="list-disc list-inside text-sm text-gray-700 mt-1">
+                    <% q.options.forEach((opt) => { %>
+                      <li><%= opt %></li>
+                    <% }) %>
+                  </ul>
+                  <p class="text-green-600 mt-1">✅ Correct: <%= q.correctAnswer %></p>
+                  <div class="flex gap-3 mt-2">
+                    <a href="/admin/quiz/<%= quiz._id %>/edit/<%= index %>"
+                       class="text-blue-500 hover:text-blue-700 font-medium">✏️ Edit</a>
+                    <form action="/admin/quiz/<%= quiz._id %>/delete/<%= index %>" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this question? This cannot be undone.');">
+                    <button type="submit" class="text-red-500 hover:text-red-700 font-medium">🗑 Delete</button>
+                    </form>
+
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p class="text-gray-500 italic">No questions yet. Click “Add Question” to begin.</p>
+            <% } %>
+          </div>
+        <% } else { %>
+          <form action="/admin/lessons/<%= lesson._id %>/quiz" method="POST" class="space-y-4">
+            <input type="text" name="title" placeholder="Quiz Title" required
+                   class="w-full border border-gray-300 rounded-lg p-2 mb-2">
+            <button type="submit"
+                    class="px-6 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white transition">💾 Create Quiz</button>
+          </form>
+        <% } %>
+      </section>
+    </main>
+  </div>
+
+<!-- 🪄 Modal for Adding Question -->
+<div id="questionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white rounded-2xl p-6 w-[600px] shadow-lg">
+    <h3 class="text-xl font-semibold mb-4 text-[#4a2e05]">Add Question</h3>
+
+    <form action="/admin/quiz/<%= quiz ? quiz._id : '' %>/add" method="POST" class="space-y-3">
+      <!-- Question -->
+      <label class="block font-semibold">Question:</label>
+      <textarea name="questionText" rows="2" required
+        class="w-full border border-gray-300 rounded-lg p-2"></textarea>
+
+      <!-- Options -->
+      <label class="block font-semibold">Options (one per line):</label>
+      <textarea name="options" id="optionsField" rows="3" required
+        class="w-full border border-gray-300 rounded-lg p-2"
+        placeholder="Write each option on a new line..."></textarea>
+
+      <!-- Correct Answer -->
+      <label class="block font-semibold">Correct Answer:</label>
+      <select name="correctAnswer" id="correctAnswerSelect"
+        class="w-full border border-gray-300 rounded-lg p-2 mb-2">
+        <option value="">-- Add options first --</option>
+      </select>
+
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="button" id="cancelQuestion"
+          class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancel</button>
+        <button type="submit"
+          class="px-4 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  const modal = document.getElementById('questionModal');
+  const addBtn = document.getElementById('addQuestionBtn');
+  const cancelBtn = document.getElementById('cancelQuestion');
+  const optionsField = document.getElementById('optionsField');
+  const correctSelect = document.getElementById('correctAnswerSelect');
+
+  // 🧩 Show modal
+  if (addBtn) {
+    addBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+  }
+
+  // 🧩 Hide modal
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+
+  // 🧠 Auto-generate Correct Answer dropdown based on options textarea
+  optionsField.addEventListener('input', () => {
+    const options = optionsField.value
+      .split('\n')
+      .map(o => o.trim())
+      .filter(o => o.length > 0);
+
+    correctSelect.innerHTML = '';
+
+    if (options.length === 0) {
+      correctSelect.innerHTML = '<option value="">-- Add options first --</option>';
+      return;
+    }
+
+    // Create dropdown items dynamically
+    options.forEach((opt, i) => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = opt;
+      if (i === 0) option.selected = true; // auto-select first
+      correctSelect.appendChild(option);
+    });
+  });
+
+  /* ============================
+   🧩 Toast Notification Function
+============================ */
+function showToast(message, color = "green") {
+  const toast = document.createElement("div");
+  toast.textContent = message;
+
+  // 🪄 Styles
+  toast.style.position = "fixed";
+  toast.style.top = "90px";
+  toast.style.left = "50%";
+  toast.style.transform = "translateX(-50%)";
+  toast.style.backgroundColor = color === "green" ? "#dcfce7" : "#fee2e2";
+  toast.style.border = `2px solid ${color === "green" ? "#22c55e" : "#ef4444"}`;
+  toast.style.color = color === "green" ? "#166534" : "#991b1b";
+  toast.style.padding = "10px 20px";
+  toast.style.borderRadius = "8px";
+  toast.style.boxShadow = "0 4px 10px rgba(0,0,0,0.1)";
+  toast.style.zIndex = "9999";
+  toast.style.fontWeight = "600";
+  toast.style.transition = "opacity 0.3s ease";
+  toast.style.opacity = "0";
+
+  document.body.appendChild(toast);
+
+  // Fade in
+  requestAnimationFrame(() => {
+    toast.style.opacity = "1";
+  });
+
+  // Fade out + remove
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ============================
+// ✅ Trigger toast on success
+// ============================
+const params = new URLSearchParams(window.location.search);
+if (params.has("success")) {
+  showToast("💾 Quiz settings saved successfully!", "green");
+
+  // Remove ?success to prevent repeat on reload
+  const newUrl = window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, newUrl);
+}
+
+if (params.has("error")) {
+  showToast("❌ Failed to save quiz settings.", "red");
+
+  const newUrl = window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, newUrl);
+}
+</script>
+
+</body>
+</html>

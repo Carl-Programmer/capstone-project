@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+  <link rel="stylesheet" href="/css/courseDetails.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+  tailwind.config = {
+    theme: {
+      extend: {},
+    },
+    plugins: [tailwindcss.typography],
+  };
+  </script>
+
+  <style>
+    /* Reduce editor total height */
+.tox.tox-hugerte {
+  height: 250px !important;
+}
+
+/* Or, reduce only the text area height */
+.tox-edit-area iframe {
+  min-height: 150px !important;
+  height: 150px !important;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <%- include('../partials/adminSidebar') %>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="admin-main">
+      <!-- Top Bar -->
+      <header class="admin-topbar">
+        <%- include('../partials/adminTopbar') %>
+      </header>
+
+      <div class="wrap">
+        <section class="shell">
+          <h2 class="dashboard-title">Edit Course</h2>
+
+          <!-- 🧱 Course Info Edit Form -->
+          <form action="/admin/courses/update/<%= course._id %>" method="POST"
+                class="bg-white p-6 rounded-2xl shadow-md mb-8 grid gap-4 md:grid-cols-2">
+            
+            <div>
+              <label class="block font-semibold text-[#4a2e05] mb-1">Title</label>
+              <input type="text" name="title" value="<%= course.title %>" required
+                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none">
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#4a2e05] mb-1">Level</label>
+              <select name="level"
+                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none">
+                <option <%= course.level === 'Beginner' ? 'selected' : '' %>>Beginner</option>
+                <option <%= course.level === 'Intermediate' ? 'selected' : '' %>>Intermediate</option>
+                <option <%= course.level === 'Advanced' ? 'selected' : '' %>>Advanced</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block font-semibold text-[#4a2e05] mb-1">Description</label>
+              <textarea name="description" rows="3"
+                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none"><%= course.description %></textarea>
+            </div>
+
+            <div class="flex gap-3 md:col-span-2 justify-end">
+              <button type="submit"
+                      class="bg-[#f97316] hover:bg-[#ea580c] text-white px-6 py-3 rounded-lg transition">
+                💾 Save Changes
+              </button>
+              <a href="/admin/courses"
+                 class="bg-gray-200 hover:bg-gray-300 text-[#4a2e05] px-6 py-3 rounded-lg transition">
+                ← Back
+              </a>
+            </div>
+          </form>
+
+<!-- 🧩 Course Contents -->
+
+<div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+
+  <h3 class="text-2xl font-semibold text-[#4a2e05]">Course Contents</h3>
+
+  <div class="flex gap-2 flex-wrap">
+
+    <!-- Add Syllabus -->
+    <button id="addSyllabusBtn"
+      class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+      📄 Add Syllabus
+    </button>
+
+    <!-- Add Lesson -->
+    <button id="addLessonBtn"
+      class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg transition">
+      ➕ Add Lesson
+    </button>
+
+    <!-- View Archived Lessons -->
+    <button id="viewArchivedBtn"
+      class="bg-gray-200 hover:bg-gray-300 text-[#4a2e05] px-4 py-2 rounded-lg font-medium transition">
+      🗃️ Archived Lessons
+    </button>
+
+    <!-- 🧠 Create Final Exam -->
+    <a href="/admin/courses/<%= course._id %>/final-exam"
+      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition">
+      🧠 Create Final Exam
+    </a>
+
+  </div>
+
+  <!-- 📄 Certificate Preview -->
+<div class="bg-white shadow rounded-lg p-4 mt-4 w-full">
+
+  <h3 class="text-xl font-semibold text-[#4a2e05] mb-2">
+    🎓 Course Certificate Template
+  </h3>
+
+  <% if (course.certificateFile) { %>
+
+    <!-- Show PDF preview -->
+    <div class="border rounded-lg overflow-hidden mb-3">
+      <iframe 
+        src="/uploads/certificates/<%= course.certificateFile %>" 
+        width="100%" 
+        height="350px">
+      </iframe>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <a href="/uploads/certificates/<%= course.certificateFile %>" 
+         target="_blank"
+         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+        🔍 View Full PDF
+      </a>
+
+      <a href="/uploads/certificates/<%= course.certificateFile %>" 
+         download
+         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+        ⬇️ Download
+      </a>
+
+      <form action="/admin/courses/<%= course._id %>/upload-certificate" 
+            method="POST" 
+            enctype="multipart/form-data"
+            class="inline-block">
+        
+        <label class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg cursor-pointer transition block">
+          ♻️ Replace Certificate
+          <input type="file" name="certificateFile" accept="application/pdf" class="hidden" onchange="this.form.submit()">
+        </label>
+      </form>
+    </div>
+
+  <% } else { %>
+
+    <p class="text-gray-600 italic mb-2">
+      No certificate uploaded yet for this course.
+    </p>
+
+    <form action="/admin/courses/<%= course._id %>/upload-certificate" 
+          method="POST" 
+          enctype="multipart/form-data">
+
+      <label class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg cursor-pointer transition inline-block">
+        📤 Upload Certificate PDF
+        <input type="file" name="certificateFile" accept="application/pdf" class="hidden" onchange="this.form.submit()">
+      </label>
+    </form>
+
+  <% } %>
+
+</div>
+
+</div>
+
+
+<!-- 📘 Course Syllabus Section -->
+<div class="bg-[#fff6ef] border border-[#fcd34d] p-4 rounded-lg mb-6">
+  <div class="flex justify-between items-center">
+    <h3 class="text-2xl font-semibold text-[#4a2e05]">📄 Course Syllabus</h3>
+
+    <% if (course.syllabusPath) { %>
+      <a href="<%= course.syllabusPath %>" target="_blank"
+         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+        View Syllabus
+      </a>
+    <% } else { %>
+      <span class="text-gray-500 italic">No syllabus uploaded yet</span>
+    <% } %>
+  </div>
+
+
+  
+<% if (lessons && lessons.length > 0) { %>
+  <div class="space-y-4">
+    <% lessons.forEach((lesson, i) => { %>
+      <div class="p-4 border border-gray-200 rounded-lg hover:bg-[#fff6ef] transition">
+        
+        <!-- 🔹 Action Buttons Row (Moved to Top) -->
+        <div class="flex justify-end gap-3 mb-2">
+          <a href="/admin/lessons/edit/<%= lesson._id %>"
+             class="text-[#f97316] hover:text-[#ea580c] font-medium">
+             ✏️ Edit
+          </a>
+
+          <a href="/admin/lessons/<%= lesson._id %>/quiz"
+             class="text-blue-500 hover:text-blue-700 font-medium">
+             🧩 Manage Assessment
+          </a>
+
+          <form action="/admin/lessons/archive/<%= lesson._id %>" method="POST"
+                onsubmit="return confirm('Are you sure you want to archive this lesson? You can restore it later.')"
+                class="inline">
+            <button type="submit" class="text-yellow-600 hover:text-yellow-700 font-medium">
+              📦 Archive
+            </button>
+          </form>
+        </div>
+
+        <!-- 🔹 Lesson Title & Description -->
+        <div>
+          <h4 class="font-semibold text-lg text-[#4a2e05]"><%= lesson.title %></h4>
+          <div class="lesson-preview prose prose-sm max-w-none text-gray-700">
+            <%- lesson.description %>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } else { %>
+  <p class="text-gray-500 italic">No lessons yet. Add one to get started.</p>
+<% } %>
+
+<hr class="my-8 border-t border-[#f3e5db]">
+
+<section id="archived-lessons-section">
+  <h3 class="text-xl font-semibold mb-3 text-[#4a2e05]">🗃️ Archived Lessons</h3>
+
+  <% if (archivedLessons.length === 0) { %>
+    <p class="text-gray-500 italic">No archived lessons.</p>
+  <% } else { %>
+    <ul class="space-y-2">
+      <% archivedLessons.forEach(lesson => { %>
+        <li class="p-4 bg-[#fff9f5] rounded-lg border border-gray-200 flex justify-between items-center">
+          <div>
+            <strong><%= lesson.title %></strong>
+            <p class="text-gray-600 text-sm">Archived</p>
+          </div>
+          <form action="/admin/lessons/restore/<%= lesson._id %>" method="POST"
+                onsubmit="return confirm('Restore this lesson?')">
+            <button class="text-green-600 hover:text-green-700 font-medium">♻️ Restore</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+
+
+
+
+</div>
+
+<!-- 🪄 Modal for Adding Lesson -->
+<div id="lessonModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+  <div class="bg-white rounded-2xl p-6 w-[800px] shadow-lg">
+    <h3 class="text-xl font-semibold mb-4 text-[#4a2e05]">Add New Lesson</h3>
+    <form id="lessonForm" action="/admin/lessons/add" method="POST">
+      <input type="hidden" name="courseId" value="<%= course._id %>">
+
+      <input type="text" name="title" placeholder="Lesson Title" required
+             class="w-full border border-gray-300 rounded-lg p-2 mb-3">
+      <textarea name="description" rows="3" placeholder="Short Description of the Lesson, You can edit the full content later."
+                class="w-full border border-gray-300 rounded-lg p-2 mb-4"></textarea>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" id="cancelLesson"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancel</button>
+        <button type="submit"
+                class="px-4 py-2 rounded-lg bg-[#f97316] hover:bg-[#ea580c] text-white">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 📄 Upload Syllabus Modal -->
+<div id="syllabusModal"
+     class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg relative">
+    <h2 class="text-xl font-semibold mb-4 text-[#4a2e05]">Upload or Replace Course Syllabus</h2>
+
+    <form action="/admin/courses/<%= course._id %>/upload-syllabus" method="POST" enctype="multipart/form-data">
+      <div class="mb-4">
+        <label class="block mb-2 font-medium text-gray-700">Select PDF File (max 10 MB)</label>
+        <input type="file" name="syllabus" accept="application/pdf" required
+               class="border border-gray-300 rounded w-full p-2">
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button type="button" id="closeModalBtn"
+                class="bg-gray-300 hover:bg-gray-400 px-3 py-2 rounded-lg">Cancel</button>
+        <button type="submit"
+                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+          Upload
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const syllabusModal = document.getElementById("syllabusModal");
+  document.getElementById("addSyllabusBtn").onclick = () => syllabusModal.classList.remove("hidden");
+  document.getElementById("closeModalBtn").onclick = () => syllabusModal.classList.add("hidden");
+</script>
+
+
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("lessonModal");
+    const addBtn = document.getElementById("addLessonBtn");
+    const cancelBtn = document.getElementById("cancelLesson");
+
+    addBtn.addEventListener("click", () => modal.classList.remove("hidden"));
+    cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  });
+
+
+document.getElementById('viewArchivedBtn').addEventListener('click', () => {
+  const section = document.getElementById('archived-lessons-section');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+
+
+</script>
+
+<!-- Include HugeRTE (self-hosted) -->
+<script src="/js/hugerte/hugerte.min.js"></script>
+<script src="/js/hugerte-config.js"></script>
+
+

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Settings</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/settings.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <script defer src="/js/main.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %>
+
+      <!-- Content -->
+      <div class="outer">
+        <section class="panel">
+          <h2 class="text-xl font-bold mb-4 text-[#5A3F20]">Settings</h2>
+
+<!-- Profile -->
+<div class="item clickable" onclick="location.href='/users/profile'">
+  <div class="left">
+    <div class="thumb icon-fa">
+      <i class="fas fa-user" style="color: #a96224;"></i>
+    </div>
+    <div class="label">My Profile</div>
+  </div>
+  <div class="right">
+    <i class="fas fa-chevron-right" style="color: #a96224;"></i>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div class="item clickable" onclick="location.href='/users/change-password'">
+  <div class="left">
+    <div class="thumb icon-fa">
+      <i class="fas fa-lock" style="color: #a96224;"></i>
+    </div>
+    <div class="label">Change Password</div>
+  </div>
+  <div class="right">
+    <i class="fas fa-chevron-right" style="color: #a96224;"></i>
+  </div>
+</div>
+
+
+<!-- Notifications -->
+<div class="item">
+  <div class="left">
+    <div class="thumb icon-fa">
+      <i class="fas fa-bell" style="color: #a96224;"></i>
+    </div>
+    <div class="label">Notifications</div>
+  </div>
+  <div class="switch" id="notifSwitch"><div class="knob"></div></div>
+</div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+ const notifSwitch = document.getElementById('notifSwitch');
+
+// Load saved preference from DB
+async function loadNotifStatus() {
+  const res = await fetch('/users/notifications/status');
+  const data = await res.json();
+
+  if (data.enabled) {
+    notifSwitch.classList.add('on');
+  } else {
+    notifSwitch.classList.remove('on');
+  }
+}
+
+loadNotifStatus();
+
+// Toggle UI + save to DB
+notifSwitch.addEventListener('click', async () => {
+  notifSwitch.classList.toggle('on');
+
+  const enabled = notifSwitch.classList.contains('on');
+
+  await fetch('/users/notifications/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enabled })
+  });
+});
+
+  </script>
+</body>
+</html>

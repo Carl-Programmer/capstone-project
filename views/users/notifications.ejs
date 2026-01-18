@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Notifications</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/topbar.js" defer></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="app">
+  <%- include('../partials/_sidebar') %>
+
+  <main class="main">
+    <%- include('../partials/_topbar') %>
+
+    <div class="outer">
+      <section class="panel">
+
+        <div class="max-w-3xl mx-auto mt-8 p-4">
+          <h1 class="text-3xl font-bold mb-4">All Notifications</h1>
+
+          <% if (notifications.length === 0) { %>
+            <div class="p-6 bg-white rounded-xl shadow text-center text-gray-500">
+              No notifications yet.
+            </div>
+          <% } %>
+
+          <div class="bg-white rounded-xl shadow divide-y notif-list">
+            <% notifications.forEach(n => { %>
+              <div class="notif-item p-4 flex items-start justify-between">
+                <div>
+                  <p class="text-gray-800"><%= n.message %></p>
+                  <p class="text-xs text-gray-500 mt-1"><%= new Date(n.createdAt).toLocaleString() %></p>
+                </div>
+                <button class="delete-btn" data-id="<%= n._id %>">×</button>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Delete notifications
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const res = await fetch(`/users/notifications/delete/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) btn.parentElement.remove();
+    });
+  });
+</script>
+
+
+</body>
+</html>

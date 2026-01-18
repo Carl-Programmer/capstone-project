@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Courses</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/courses.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/main.js"></script>
+  <script defer src="/js/courses.js"></script>
+</head>
+
+<body>
+
+      <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %>
+
+          <div class="wrap">
+        <section class="shell">
+        <div class="grid" id="courseGrid">
+          <% if (courses && courses.length > 0) { %>
+            <% courses.forEach(course => { 
+                const idStr = course._id.toString();
+                const total = lessonsCountMap[idStr] || 0;
+                const enrolled = enrolledIds.includes(idStr);
+                const progress = progressMap[idStr] || 0;
+                const pct = enrolled ? Math.max(0, Math.min(100, Math.round(progress))) : 0; // clamp 0..100
+            %>
+
+              <article class="course beginner" data-title="<%= course.title %>">
+                <h3 class="title"><%= course.title %></h3>
+
+                <div class="row">
+                  <div class="stats">
+                    <div class="big" id="begCount"><%= total %></div>
+                    <div>
+                      <div class="label">Lessons</div>
+
+                      <% if (enrolled) { %>
+                        <span class="sub"><%= Math.floor(total * (Number(progress || 0) / 100)) %> of <%= total %> completed</span>
+                      <% } else { %>
+                        <span class="sub"><%= total %> lesson<%= total !== 1 ? 's' : '' %></span>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <!-- ring: use inline CSS variable --pct same as your original -->
+                  <div class="ring" id="begRing" style="--pct:<%= pct %>%"><%= pct %>%</div>
+                </div>
+
+                <div class="btn-row">
+                  <% if (enrolled) { %>
+                    <a href="/courses/<%= course._id %>/view" class="btn light">View course</a>
+                  <% } else { %>
+                    <a href="/courses/<%= course._id %>/view" class="btn">Course Overview</a>
+                    <form action="/courses/enroll/<%= course._id %>" method="POST" style="display:inline-block">
+                      <button type="submit" class="btn">Enroll</button>
+                    </form>
+                  <% } %>
+                </div>
+              </article>
+
+            <% }) %>
+          <% } else { %>
+
+            <!-- fallback if no courses -->
+            <p class="text-gray-500">No courses found.</p>
+
+          <% } %>
+        </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>

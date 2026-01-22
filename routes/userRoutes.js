@@ -16,6 +16,7 @@ const Notification = require("../models/Notification");
 const auth = require("../middleware/auth");
 const { sendNotification } = require("../utils/notify");
 const QuizAttempt = require('../models/QuizAttempt');
+const { translateText } = require('../controllers/translateController');
 
 
 router.get('/users/dashboard', isAuthenticated, async (req, res) => {
@@ -721,6 +722,20 @@ router.get('/users/certificates', async (req, res) => {
 });
 
 
+// ============================
+// Translation Page Route
+// ============================
+router.get('/users/translate', isAuthenticated, (req, res) => {
+  res.render('users/translate', {
+    pageTitle: 'Translate'
+  });
+});
+
+
+// ============================
+// Translation API Route
+// ============================
+router.post('/users/translate', isAuthenticated, translateText);
 
 // ============================
 // User Profile Routes

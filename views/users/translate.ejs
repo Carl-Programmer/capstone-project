@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chabalingo • Translate</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/translate.css"><!-- uses same design as help.css -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/main.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <%- include('../partials/_sidebar') %>
+
+    <main class="main">
+      <%- include('../partials/_topbar') %>
+
+      <div class="outer">
+        <section class="panel space-y-6">
+
+          <!-- HEADER -->
+          <div class="section">
+            <h2 class="text-2xl font-bold text-[#4a2e05] text-center">
+              Tagalog → Chavacano Translator
+            </h2>
+            <p class="text-center text-gray-600 text-sm mt-1">
+              Translate basic Tagalog words or sentences into Chavacano (Caviteño)
+            </p>
+          </div>
+
+          <!-- TRANSLATION CARD -->
+
+            <!-- INPUT -->
+             <div class="section card">
+                <h2>Tagalog</h2>
+             <div class="textarea-input">
+              <textarea
+                id="tagalogInput"
+                placeholder="Ilagay ang Tagalog na salita o pangungusap..."
+                class="w-full h-32 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#b36200]"
+              ></textarea>
+            </div>
+            </div>
+            <!-- BUTTON -->
+            <div class="text-center">
+              <button id="translateBtn" class="btn" type="button">
+                Translate
+              </button>
+            </div>
+
+            <!-- OUTPUT -->
+             <div class="section card" id="outputSection">
+            <h2>Chavacano</h2>
+            <div class="textarea-wrap">
+              <textarea
+                id="chavacanoOutput"
+                placeholder="Resultado del traduccion..."
+                class="w-full h-32 p-3 border rounded-lg resize-none"
+                readonly
+              ></textarea>
+            </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+<script>
+  const translateBtn = document.getElementById('translateBtn');
+  const tagalogInput = document.getElementById('tagalogInput');
+  const chavacanoOutput = document.getElementById('chavacanoOutput');
+
+  translateBtn.addEventListener('click', async () => {
+    const text = tagalogInput.value.trim();
+
+    if (!text) {
+      chavacanoOutput.value = "";
+      return;
+    }
+
+    try {
+      const response = await fetch('/users/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text })
+      });
+
+      const data = await response.json();
+      chavacanoOutput.value = data.translated;
+
+    outputSection.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
+    } catch (error) {
+      chavacanoOutput.value = "Error translating text.";
+    }
+  });
+</script>
+</body>
+</html>

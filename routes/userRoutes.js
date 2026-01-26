@@ -17,7 +17,7 @@ const auth = require("../middleware/auth");
 const { sendNotification } = require("../utils/notify");
 const QuizAttempt = require('../models/QuizAttempt');
 const { translateText } = require('../controllers/translateController');
-
+const shuffleArray = require('../utils/shuffleArray');
 
 router.get('/users/dashboard', isAuthenticated, async (req, res) => {
   try {
@@ -336,15 +336,34 @@ router.get('/users/quiz/:lessonId', async (req, res) => {
 // 🧩 GET /users/quiz/:quizId/start – start taking the quiz
 router.get('/users/quiz/:quizId/start', async (req, res) => {
   try {
+    const quizId = req.params.quizId;
+
     const quiz = await Quiz.findById(req.params.quizId).lean();
     if (!quiz) return res.status(404).send('Quiz not found.');
 
     const lesson = await Lesson.findById(quiz.lessonId).lean();
     if (!lesson) return res.status(404).send('Lesson not found.');
 
+    // 🧠 Check if shuffle already exists for this quiz attempt
+    if (!req.session.quizOrder) {
+      req.session.quizOrder = {};
+    }
+
+    if (!req.session.quizOrder[quizId]) {
+      // 🔀 Shuffle ONCE
+      req.session.quizOrder[quizId] = shuffleArray(
+        quiz.questions.map(q => q._id.toString())
+      );
+    }
+
+    // 🧩 Rebuild questions using stored order
+    const orderedQuestions = req.session.quizOrder[quizId].map(id =>
+      quiz.questions.find(q => q._id.toString() === id)
+    );
+
     res.render('users/takeQuiz', {
       lesson,
-      quiz,
+      quiz: {...quiz, questions: orderedQuestions},
       timeLimit: quiz.timeLimit, // already stored in seconds
       pageTitle: `Quiz - ${lesson.title}`
     });
@@ -361,14 +380,23 @@ router.get('/users/quiz/:quizId/start', async (req, res) => {
 
 router.post('/users/quiz/:lessonId', async (req, res) => {
   try {
+    
     const quiz = await Quiz.findOne({ lessonId: req.params.lessonId });
     if (!quiz) return res.status(404).send('Quiz not found');
+
+    const quizId = quiz._id.toString(); // ✅ REAL quizId
+
+    // 🧠 Clear stored shuffle AFTER submission
+    if (req.session.quizOrder && req.session.quizOrder[quizId]) {
+      delete req.session.quizOrder[quizId];
+    }
 
     const answers = req.body || {};
     let score = 0;
 
     quiz.questions.forEach((q, i) => {
-      const userAnswer = (answers[`q${i}`] || '').trim();
+      const key = `q_${q._id}`;
+      const userAnswer = (answers[key] || '').trim();
       const correct = (q.correctAnswer || '').trim();
       if (userAnswer && userAnswer.toLowerCase() === correct.toLowerCase()) score++;
     });
@@ -554,18 +582,38 @@ router.get("/users/final-exam/:courseId", async (req, res) => {
 // ============================
 router.get('/users/final-exam/:courseId/start', async (req, res) => {
   try {
+
+    const courseId = req.params.courseId;
+
     const quiz = await Quiz.findOne({
       courseId: req.params.courseId,
       isFinalExam: true
-    });
+    }).lean();
 
     if (!quiz) return res.status(404).send("Final exam not found");
 
-    const course = await Course.findById(req.params.courseId);
+    const course = await Course.findById(courseId).lean();
+
+        // 🧠 Session container
+    if (!req.session.finalExamOrder) {
+      req.session.finalExamOrder = {};
+    }
+
+    // 🔀 Shuffle ONCE per attempt
+    if (!req.session.finalExamOrder[quiz._id]) {
+      req.session.finalExamOrder[quiz._id] = shuffleArray(
+        quiz.questions.map(q => q._id.toString())
+      );
+    }
+
+    // 🧩 Rebuild ordered questions
+    const orderedQuestions = req.session.finalExamOrder[quiz._id].map(id =>
+      quiz.questions.find(q => q._id.toString() === id)
+    );
 
     res.render("users/takeFinalExam", { 
       course, 
-      quiz,
+      quiz: {...quiz, questions: orderedQuestions},
       timeLimit: (course.examSettings?.timeLimit || 120) * 60, // always minutes → seconds
       pageTitle: "Final Exam"
     });
@@ -592,18 +640,30 @@ router.post("/users/final-exam/:courseId/submit", async (req, res) => {
     });
     if (!quiz) return res.status(404).send("Exam not found");
 
+    // 🧠 Clear stored final exam order after submission
+if (req.session.finalExamOrder && req.session.finalExamOrder[quiz._id]) {
+  delete req.session.finalExamOrder[quiz._id];
+}
+    // 🔹 Get course and user info
+
     const course = await Course.findById(courseId);
     const user = await User.findById(req.session.user?._id);
 
     if (!user) return res.status(401).send("Please log in first.");
 
+    
+
     // 🔹 Calculate the score
     const answers = req.body || {};
+
+    console.log("FINAL EXAM SUBMISSION BODY:", answers);
     let score = 0;
 
     quiz.questions.forEach((q, i) => {
-      const userAnswer = (answers[`q${i}`] || "").trim();
-      if (userAnswer === q.correctAnswer.trim()) score++;
+      const key = `q_${q._id}`;
+      const userAnswer = (answers[key] || "").trim();
+      const correct = (q.correctAnswer || "").trim();
+      if (userAnswer.toLowerCase() === correct.toLowerCase()) {score++;}
     });
 
     const total = quiz.questions.length;

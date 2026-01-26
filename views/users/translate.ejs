@@ -6,9 +6,8 @@
   <title>Chabalingo • Translate</title>
 
   <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/translate.css"><!-- uses same design as help.css -->
+  <link rel="stylesheet" href="/css/translate.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="/js/main.js"></script>
 </head>
 
 <body>
@@ -24,87 +23,103 @@
           <!-- HEADER -->
           <div class="section">
             <h2 class="text-2xl font-bold text-[#4a2e05] text-center">
-              Tagalog → Chavacano Translator
+              Tagalog ⇄ Chabacano Translator
             </h2>
             <p class="text-center text-gray-600 text-sm mt-1">
-              Translate basic Tagalog words or sentences into Chavacano (Caviteño)
+              Automatically detects input language
             </p>
           </div>
 
-          <!-- TRANSLATION CARD -->
+          <!-- TRANSLATION GRID -->
+          <div class="translate-grid">
 
             <!-- INPUT -->
-             <div class="section card">
-                <h2>Tagalog</h2>
-             <div class="textarea-input">
-              <textarea
-                id="tagalogInput"
-                placeholder="Ilagay ang Tagalog na salita o pangungusap..."
-                class="w-full h-32 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#b36200]"
-              ></textarea>
-            </div>
-            </div>
-            <!-- BUTTON -->
-            <div class="text-center">
-              <button id="translateBtn" class="btn" type="button">
-                Translate
-              </button>
+            <div class="section card">
+              <h2>Input</h2>
+              <div class="textarea-input">
+                <textarea
+                  id="tagalogInput"
+                  placeholder="Ilagay ang salita o pangungusap..."
+                  class="w-full h-32 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#b36200]"
+                ></textarea>
+              </div>
             </div>
 
             <!-- OUTPUT -->
-             <div class="section card" id="outputSection">
-            <h2>Chavacano</h2>
-            <div class="textarea-wrap">
-              <textarea
-                id="chavacanoOutput"
-                placeholder="Resultado del traduccion..."
-                class="w-full h-32 p-3 border rounded-lg resize-none"
-                readonly
-              ></textarea>
+            <div class="section card" id="outputSection">
+              <h2>Translation</h2>
+              <div class="textarea-wrap">
+                <div
+                  id="chavacanoOutput"
+                  class="w-full min-h-[8rem] p-3 border rounded-lg bg-gray-50 text-sm space-y-1"
+                >
+                  <span class="text-gray-400">Result will appear here…</span>
+                </div>
+              </div>
             </div>
-            </div>
+
+          </div>
+
+          <!-- TRANSLATE BUTTON -->
+          <div class="text-center mt-4">
+            <button id="translateBtn" class="btn" type="button">
+              Translate
+            </button>
           </div>
 
         </section>
       </div>
-
     </main>
   </div>
 
 <script>
-  const translateBtn = document.getElementById('translateBtn');
-  const tagalogInput = document.getElementById('tagalogInput');
-  const chavacanoOutput = document.getElementById('chavacanoOutput');
+const translateBtn = document.getElementById('translateBtn');
+const inputField = document.getElementById('tagalogInput');
+const outputField = document.getElementById('chavacanoOutput');
+const outputSection = document.getElementById('outputSection');
 
-  translateBtn.addEventListener('click', async () => {
-    const text = tagalogInput.value.trim();
+translateBtn.addEventListener('click', async () => {
+  const text = inputField.value.trim();
+  if (!text) {
+    outputField.innerHTML = '<span class="text-gray-400">Result will appear here…</span>';
+    return;
+  }
 
-    if (!text) {
-      chavacanoOutput.value = "";
-      return;
-    }
-
-    try {
-      const response = await fetch('/users/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ text })
-      });
-
-      const data = await response.json();
-      chavacanoOutput.value = data.translated;
-
-    outputSection.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
+  try {
+    const response = await fetch('/users/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
     });
 
-    } catch (error) {
-      chavacanoOutput.value = "Error translating text.";
+    const data = await response.json();
+
+    if (Array.isArray(data.translated)) {
+      outputField.innerHTML = data.translated
+        .map(item => {
+          const from = highlightMatch(item.from, text);
+          const to = highlightMatch(item.to, text);
+          return `<div>${from} → ${to}</div>`;
+        })
+        .join('');
+    } else {
+      outputField.innerHTML = data.translated
+        ? `<div>${data.translated}</div>`
+        : '<span class="text-gray-400">No translation found.</span>';
     }
-  });
+
+    outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (error) {
+    outputField.innerHTML = '<span class="text-red-500">Error translating text.</span>';
+  }
+});
+
+function highlightMatch(text, query) {
+  if (!query) return text;
+  const regex = new RegExp(`(${query})`, 'gi');
+  return text.replace(regex, '<span class="bg-yellow-200 font-semibold">$1</span>');
+}
 </script>
 </body>
 </html>

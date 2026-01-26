@@ -37,8 +37,9 @@
               <div class="choices">
                 <% q.options.forEach(opt => { %>
                   <label>
-                    <input type="radio"
-                      name="q<%= i %>"
+                    <input 
+                      type="radio"
+                      name="q_<%= q._id %>"
                       value="<%= opt.trim() %>">
                     <span><%= opt %></span>
                   </label>

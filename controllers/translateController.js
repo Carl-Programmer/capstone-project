@@ -10,19 +10,35 @@ exports.translateText = async (req, res) => {
 
     const input = text.toLowerCase().trim();
 
-    // Find exact match in database
-    const translation = await Translation.findOne({
-      tagalog: input
-    });
+    // Find matches in BOTH languages (partial, case-insensitive)
+    const results = await Translation.find({
+      $or: [
+        { tagalog: { $regex: input, $options: 'i' } },
+        { chavacano: { $regex: input, $options: 'i' } }
+      ]
+    }).limit(5);
 
-    if (!translation) {
+    if (!results.length) {
       return res.json({
-        translated: "No hay traduccion disponible todavía."
+        translated: null,
+        suggestions: [],
+        message: "No translation found yet."
       });
     }
 
+    // Detect direction automatically
+    const translations = results.map(item => {
+      const isTagalogInput = item.tagalog.toLowerCase().includes(input);
+
+      return {
+        from: isTagalogInput ? item.tagalog : item.chavacano,
+        to: isTagalogInput ? item.chavacano : item.tagalog,
+        category: item.category
+      };
+    });
+
     res.json({
-      translated: translation.chavacano
+      translated: translations
     });
 
   } catch (error) {

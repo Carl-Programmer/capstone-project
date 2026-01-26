@@ -32,7 +32,7 @@
               <% q.options.forEach(opt => { %>
                 <label>
                   <input type="radio"
-                         name="q<%= i %>"
+                         name="q_<%= q._id %>"
                          value="<%= opt.trim() %>">
                   <span><%= opt %></span>
                 </label>

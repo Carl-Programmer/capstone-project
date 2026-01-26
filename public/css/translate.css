@@ -58,7 +58,7 @@
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.04) inset;
   padding: 14px;
 }
-.textarea-input{
+.textarea-input {
   margin-top: 8px;
   background: #ffffff;
   border: 1px solid #ebc49d;
@@ -77,6 +77,18 @@ textarea {
   font: inherit;
   color: var(--text);
 }
+
+#chavacanoOutput {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--text);
+}
+
 .btn-row {
   display: flex;
   justify-content: flex-end;
@@ -90,9 +102,26 @@ textarea {
   padding: 10px 20px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 0 #382410, 0 8px 16px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 0 #382410,
+    0 8px 16px rgba(0, 0, 0, 0.12);
 }
 .btn:active {
   transform: translateY(2px);
   box-shadow: 0 2px 0 #382410;
+}
+
+/* ===== Translator Two-Column Layout ===== */
+.translate-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* Desktop / tablet */
+@media (min-width: 768px) {
+  .translate-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
 }

@@ -36,35 +36,37 @@ router.get('/admin/dashboard', isAdmin, async (req, res) => {
 // ============================
 // User Management Routes
 // ============================
+const deactivateInactiveUsers = require('../utils/deactivateInactiveUsers');
 
 router.get('/admin/users', isAdmin, async (req, res) => {
   try {
-    const { role, status, archived } = req.query; // ← FIXED (added archived)
+    // ✅ Auto-deactivate inactive users
+    await deactivateInactiveUsers();
+
+    const { role, status, archived } = req.query;
     const filter = {};
 
     if (role) filter.role = role;
-    if (status) filter.status = status;
+    if (status && status !== 'all') filter.status = status;
 
-    // ARCHIVED FILTER (must compare as string)
     if (archived === "true") filter.archived = true;
     else if (archived === "false") filter.archived = false;
 
     const users = await User.find(filter).lean();
 
-    res.render('admin/users', { 
+    res.render('admin/users', {
       pageTitle: 'Manage Users',
       user: req.session.user,
       users,
       selectedRole: role || "",
       selectedStatus: status || "",
-      selectedArchived: archived || ""   // ← include for EJS dropdown
+      selectedArchived: archived || ""
     });
   } catch (err) {
     console.error('Error loading users:', err);
     res.status(500).send('Server error');
   }
 });
-
 
 
 // ✏️ Edit User Page
@@ -133,6 +135,7 @@ router.post('/admin/users/toggle-status/:id', isAdmin, async (req, res) => {
       user.reasonSuspended = reasonSuspended || "No reason provided";
     } else {
       user.status = 'active';
+      user.lastLoginDate = new Date();
       user.reasonSuspended = ""; // Clear reason when reactivated
     }
 

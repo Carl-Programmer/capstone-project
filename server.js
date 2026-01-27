@@ -11,6 +11,7 @@ const courseRoutes = require("./routes/courseRoutes");
 const mongoose = require('mongoose');
 const helpRoutes = require('./routes/helpRoutes');
 const fs = require('fs');
+const deactivateInactiveUsers = require('./utils/deactivateInactiveUsers');
 
 
 
@@ -85,10 +86,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
  // res.render('users/dashboard', { pageTitle: 'Dashboard', user: req.session.user });
 //});
 
-app.get('/admin/dashboard', isAdmin, (req, res) => {
-  res.render('admin/dashboard', { pageTitle: 'Admin Dashboard', user: req.session.user });
-});
+/*
+app.get('/admin/dashboard', isAdmin, async (req, res) => {
+  console.log('🔥 SERVER.JS ADMIN DASHBOARD HIT');
 
+  await deactivateInactiveUsers();
+
+  res.render('admin/dashboard', {
+    pageTitle: 'Admin Dashboard',
+    user: req.session.user
+  });
+});
+*/
 // Regular content pages (optional)
 // Ensure certificate generation directory exists
 const genDir = path.join(__dirname, "public/uploads/certificates/generated");

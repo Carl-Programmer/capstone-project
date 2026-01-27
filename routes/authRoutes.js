@@ -97,12 +97,34 @@ router.post('/login', async (req, res) => {
       });
     }
 
+const cutoffDate = new Date();
+cutoffDate.setDate(cutoffDate.getDate() - 90);
+
+if (
+  user.role === 'user' &&
+  user.status === 'active' &&
+  user.archived === false &&
+  user.lastLoginDate &&
+  user.lastLoginDate < cutoffDate
+) {
+  user.status = 'deactivated';
+  await user.save();
+}
+
 // 🛑 Block suspended accounts
 if (user.status === 'suspended') {
   return res.render('account-blocked', {
     title: 'Account Suspended',
     message: 'Your account has been suspended.',
     reason: user.reasonSuspended || 'No reason provided.',
+  });
+}
+
+if (user.status === 'deactivated') {
+  return res.render('account-blocked', {
+    title: 'Account Deactivated',
+    message: 'Your account was deactivated due to inactivity.',
+    reason: 'Please contact the administrator or reactivate your account.'
   });
 }
 
@@ -168,16 +190,22 @@ try {
 // 5️⃣ Redirect based on role
 try {
   // ⭐ Update loginDays before session save
-  if (fullUser.role !== 'admin') {
-    const today = new Date().toDateString();
-    const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate).toDateString() : null;
+if (fullUser.role !== 'admin') {
 
-    if (today !== lastLogin) {
-      user.loginDays = (user.loginDays || 0) + 1;
-      user.lastLoginDate = new Date();
-      await user.save();
-    }
+  const today = new Date().toDateString();
+  const lastLogin = user.lastLoginDate
+    ? new Date(user.lastLoginDate).toDateString()
+    : null;
+
+  if (today !== lastLogin) {
+    user.loginDays = (user.loginDays || 0) + 1;
+    user.lastLoginDate = new Date();
   }
+
+  await user.save();
+}
+
+
 
   // ⭐ Store latest user info again after updating
   const updatedUser = await User.findById(user._id).lean();

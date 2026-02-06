@@ -28,6 +28,7 @@ const courseSchema = new mongoose.Schema({
     type: String, // example: filename.pdf
     default: "1764336652379-BLANK-CERTICATE.pdf"
   },
+
    archived: { type: Boolean, default: false },
 
     examSettings: {
@@ -36,8 +37,30 @@ const courseSchema = new mongoose.Schema({
     passingGrade: { type: Number, default: 7 },
     gradingMethod: { type: String, default: 'highest' },
     description: { type: String, default: 'You have two (2) hours to complete the exam.' }
-  }
+  },
   
+reviewStatus: {
+  type: String,
+  enum: ['draft', 'pending', 'approved', 'rejected'],
+  default: 'draft'
+},
+
+reviewedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null
+},
+
+reviewedAt: {
+  type: Date,
+  default: null
+},
+
+reviewNotes: {
+  type: String,
+  default: ""
+}
+
 
 });
 

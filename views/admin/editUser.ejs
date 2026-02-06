@@ -69,6 +69,7 @@
   <% } else { %>
     <select name="role" class="w-full border rounded-lg p-2 mt-1">
       <option value="user" <%= userToEdit.role === 'user' ? 'selected' : '' %>>User</option>
+      <option value="linguist" <%= userToEdit.role === 'linguist' ? 'selected' : '' %>>Linguist</option>
       <option value="admin" <%= userToEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
     </select>
   <% } %>

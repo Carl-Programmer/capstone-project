@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isAdmin } = require('../middleware/auth');  // ✅ admin protection middleware
+const { isAdmin, isAdminOrLinguist } = require('../middleware/auth');  // ✅ admin protection middleware
 const User = require('../models/User');             // ✅ user model
 const Course = require('../models/Course');         // ✅ course model (create this later)
 const Lesson = require('../models/Lesson');
@@ -10,12 +10,13 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
+// 🔒 Protect ALL admin routes
+router.use('/admin', isAdminOrLinguist);
 // ============================
 // Admin Routes
 // ============================
 
-router.get('/admin/dashboard', isAdmin, async (req, res) => {
+router.get('/admin/dashboard', async (req, res) => {
   try {
     // Optional stats
     const totalUsers = await User.countDocuments();
@@ -38,7 +39,7 @@ router.get('/admin/dashboard', isAdmin, async (req, res) => {
 // ============================
 const deactivateInactiveUsers = require('../utils/deactivateInactiveUsers');
 
-router.get('/admin/users', isAdmin, async (req, res) => {
+router.get('/admin/users', async (req, res) => {
   try {
     // ✅ Auto-deactivate inactive users
     await deactivateInactiveUsers();
@@ -70,7 +71,7 @@ router.get('/admin/users', isAdmin, async (req, res) => {
 
 
 // ✏️ Edit User Page
-router.get('/admin/users/edit/:id', isAdmin, async (req, res) => {
+router.get('/admin/users/edit/:id', async (req, res) => {
   try {
     const userToEdit = await User.findById(req.params.id).lean();
 
@@ -90,7 +91,7 @@ router.get('/admin/users/edit/:id', isAdmin, async (req, res) => {
 });
 
 // 📝 Update User Info
-router.post('/admin/users/edit/:id', isAdmin, async (req, res) => {
+router.post('/admin/users/edit/:id', async (req, res) => {
   try {
     const { givenName, surname, gender, dateOfBirth, role } = req.body;
     const user = await User.findById(req.params.id);
@@ -122,7 +123,7 @@ router.post('/admin/users/edit/:id', isAdmin, async (req, res) => {
 
 
 // 🟡 Suspend / Reactivate user (Toggle status)
-router.post('/admin/users/toggle-status/:id', isAdmin, async (req, res) => {
+router.post('/admin/users/toggle-status/:id', async (req, res) => {
   try {
     const { reasonSuspended } = req.body;
 
@@ -150,7 +151,7 @@ router.post('/admin/users/toggle-status/:id', isAdmin, async (req, res) => {
 
 
 // 🗂️ Archive user
-router.post('/admin/users/archive/:id', isAdmin, async (req, res) => {
+router.post('/admin/users/archive/:id', async (req, res) => {
   try {
     const { reasonArchived } = req.body;
 
@@ -172,7 +173,7 @@ router.post('/admin/users/archive/:id', isAdmin, async (req, res) => {
 
 
 // ♻️ Unarchive user
-router.post('/admin/users/unarchive/:id', isAdmin, async (req, res) => {
+router.post('/admin/users/unarchive/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 
@@ -195,31 +196,22 @@ router.post('/admin/users/unarchive/:id', isAdmin, async (req, res) => {
 // Course Management Routes
 // ============================
 
-router.get('/admin/courses', isAdmin, async (req, res) => {
+// ============================
+// Course Management Routes
+// ============================
+
+// 📘 Manage Courses (Admin)
+router.get('/admin/courses', async (req, res) => {
   try {
-    // Include old documents without 'archived' field
     const courses = await Course.find({
-      $or: [{ archived: false }, { archived: { $exists: false } }]
+      $or: [
+        { archived: false },
+        { archived: { $exists: false } } // include old courses
+      ]
     })
       .sort({ createdAt: -1 })
       .lean();
 
-    res.render('admin/courses', { 
-      pageTitle: 'Manage Courses',
-      user: req.session.user,
-      courses
-    });
-  } catch (err) {
-    console.error('Error loading courses:', err);
-    res.status(500).send('Server error');
-  }
-});
-
-
-// 📘 Manage Courses
-router.get('/admin/courses', isAdmin, async (req, res) => {
-  try {
-    const courses = await Course.find().sort({ createdAt: -1 }).lean();
     res.render('admin/courses', {
       pageTitle: 'Manage Courses',
       user: req.session.user,
@@ -231,11 +223,12 @@ router.get('/admin/courses', isAdmin, async (req, res) => {
   }
 });
 
+
 // ➕ Add new course
-router.post('/admin/courses/add', isAdmin, async (req, res) => {
+router.post('/admin/courses/add', async (req, res) => {
   try {
     const { title, description, level } = req.body;
-    await Course.create({ title, description, level });
+    await Course.create({ title, description, level, reviewStatus: 'pending' });
     res.redirect('/admin/courses');
   } catch (err) {
     console.error('Error adding course:', err);
@@ -244,7 +237,7 @@ router.post('/admin/courses/add', isAdmin, async (req, res) => {
 });
 
 // 🗄 Toggle archive (archive/unarchive)
-router.post('/admin/courses/toggle-archive/:id', isAdmin, async (req, res) => {
+router.post('/admin/courses/toggle-archive/:id', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).send('Course not found');
@@ -260,7 +253,7 @@ router.post('/admin/courses/toggle-archive/:id', isAdmin, async (req, res) => {
 });
 
 // 🗃 View archived courses
-router.get('/admin/courses/archived', isAdmin, async (req, res) => {
+router.get('/admin/courses/archived', async (req, res) => {
   try {
     const courses = await Course.find({ archived: true }).sort({ createdAt: -1 });
     res.render('admin/courses', { pageTitle: 'Archived Courses', courses });
@@ -273,7 +266,7 @@ router.get('/admin/courses/archived', isAdmin, async (req, res) => {
 
 
 // 📘 View a specific course and its lessons
-router.get('/admin/courses/:id', isAdmin, async (req, res) => {
+router.get('/admin/courses/:id', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).lean();
     if (!course) return res.status(404).send('Course not found');
@@ -297,10 +290,21 @@ router.get('/admin/courses/:id', isAdmin, async (req, res) => {
 
 
 // ✏️ Update Course Info
-router.post('/admin/courses/update/:id', isAdmin, async (req, res) => {
+// ✏️ Update Course Info (resets review status)
+router.post('/admin/courses/update/:id', async (req, res) => {
   try {
     const { title, description, level } = req.body;
-    await Course.findByIdAndUpdate(req.params.id, { title, description, level });
+
+    await Course.findByIdAndUpdate(req.params.id, {
+      title,
+      description,
+      level,
+      reviewStatus: 'pending',
+      reviewedBy: null,
+      reviewedAt: null,
+      reviewNotes: ""
+    });
+
     res.redirect(`/admin/courses/${req.params.id}`);
   } catch (err) {
     console.error('Error updating course:', err);
@@ -308,8 +312,9 @@ router.post('/admin/courses/update/:id', isAdmin, async (req, res) => {
   }
 });
 
+
 // 🟡 Edit Lesson Page (GET)
-router.get('/admin/lessons/edit/:id', isAdmin, async (req, res) => {
+router.get('/admin/lessons/edit/:id', async (req, res) => {
   try {
     const lesson = await Lesson.findById(req.params.id).lean();
     if (!lesson) return res.status(404).send('Lesson not found');
@@ -329,10 +334,24 @@ router.get('/admin/lessons/edit/:id', isAdmin, async (req, res) => {
 });
 
 // 🟢 Save Updated Lesson (POST)
-router.post('/admin/lessons/edit/:id', isAdmin, async (req, res) => {
+// 🟢 Save Updated Lesson (POST) — resets review status
+router.post('/admin/lessons/edit/:id', async (req, res) => {
   try {
     const { title, description } = req.body;
-    const lesson = await Lesson.findByIdAndUpdate(req.params.id, { title, description });
+
+    const lesson = await Lesson.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        reviewStatus: 'pending',
+        reviewedBy: null,
+        reviewedAt: null,
+        reviewNotes: ""
+      },
+      { new: true }
+    );
+
     res.redirect(`/admin/courses/${lesson.courseId}`);
   } catch (err) {
     console.error('Error updating lesson:', err);
@@ -348,7 +367,7 @@ router.post('/admin/lessons/edit/:id', isAdmin, async (req, res) => {
 // Admin Settings Route
 // ============================
 
-router.get('/admin/settings', isAdmin, (req, res) => {
+router.get('/admin/settings', async (req, res) => {
   res.render('admin/settings', { 
     pageTitle: 'Admin Settings',
     user: req.session.user
@@ -357,12 +376,12 @@ router.get('/admin/settings', isAdmin, (req, res) => {
 
 
 // 🟢 Add a new lesson to a course
-router.post('/admin/lessons/add', isAdmin, async (req, res) => {
+router.post('/admin/lessons/add', async (req, res) => {
   try {
     const { courseId, title, description } = req.body;
     if (!courseId) return res.status(400).send('Missing course ID');
 
-    await Lesson.create({ courseId, title, description });
+    await Lesson.create({ courseId, title, description, reviewStatus: 'pending' });
     res.redirect(`/admin/courses/${courseId}`);
   } catch (err) {
     console.error('Error adding lesson:', err);
@@ -443,7 +462,13 @@ router.post("/admin/courses/:id/upload-syllabus", upload.single("syllabus"), asy
     }
 
     // Save new file path
-    await Course.findByIdAndUpdate(req.params.id, { syllabusPath });
+    await Course.findByIdAndUpdate(req.params.id, {
+  syllabusPath,
+  reviewStatus: 'pending',
+  reviewedBy: null,
+  reviewedAt: null,
+  reviewNotes: ""
+});
     res.redirect(`/admin/courses/${req.params.id}`);
   } catch (err) {
     console.error("Error uploading syllabus:", err);
@@ -479,6 +504,11 @@ router.post('/admin/lessons/:lessonId/quiz/settings', async (req, res) => {
     // else: leave existing or default intact
 
     quiz.gradingMethod = "highest";
+
+    quiz.reviewStatus = 'pending';
+    quiz.reviewedBy = null;
+    quiz.reviewedAt = null;
+    quiz.reviewNotes = "";
 
     await quiz.save();
     console.log("✅ Quiz settings updated:", quiz.title);
@@ -533,7 +563,8 @@ router.post('/admin/lessons/:id/quiz', async (req, res) => {
     const newQuiz = new Quiz({
       lessonId: req.params.id,
       title,
-      timeLimit: 1200 // seconds
+      timeLimit: 1200, // seconds
+      reviewStatus: 'pending'
     });
 
     await newQuiz.save();
@@ -580,6 +611,11 @@ router.post('/admin/quiz/:id/add', async (req, res) => {
       options,
       correctAnswer: canonicalCorrect
     });
+
+    quiz.reviewStatus = 'pending';
+    quiz.reviewedBy = null;
+    quiz.reviewedAt = null;
+    quiz.reviewNotes = "";
 
     await quiz.save();
     res.redirect(`/admin/lessons/${quiz.lessonId}/quiz`);
@@ -649,6 +685,11 @@ router.post('/admin/quiz/:quizId/edit/:index', async (req, res) => {
       correctAnswer: canonicalCorrect
     };
 
+    quiz.reviewStatus = 'pending';
+    quiz.reviewedBy = null;
+    quiz.reviewedAt = null;
+    quiz.reviewNotes = "";
+
     await quiz.save();
     res.redirect(`/admin/lessons/${quiz.lessonId}/quiz`);
   } catch (err) {
@@ -666,6 +707,12 @@ router.post('/admin/quiz/:quizId/delete/:index', async (req, res) => {
     if (!quiz) return res.status(404).send("Quiz not found");
 
     quiz.questions.splice(req.params.index, 1);
+
+    quiz.reviewStatus = 'pending';
+    quiz.reviewedBy = null;
+    quiz.reviewedAt = null;
+    quiz.reviewNotes = "";
+
     await quiz.save();
 
     res.redirect(`/admin/lessons/${quiz.lessonId}/quiz`);
@@ -675,7 +722,6 @@ router.post('/admin/quiz/:quizId/delete/:index', async (req, res) => {
   }
 });
 
-module.exports = router;
 
 //==================================
 // 🧩 Save / Update Exam Settings
@@ -705,6 +751,12 @@ router.post("/admin/courses/:id/final-exam/settings", async (req, res) => {
 
 if (quiz) {
   quiz.timeLimit = course.examSettings.timeLimit * 60; // keep synced
+
+  quiz.reviewStatus = 'pending';
+  quiz.reviewedBy = null;
+  quiz.reviewedAt = null;
+  quiz.reviewNotes = "";
+
   await quiz.save();
 }
 
@@ -725,7 +777,7 @@ if (quiz) {
 
 
 // 📘 GET /admin/courses/:id/final-exam → show Final Exam builder
-router.get('/admin/courses/:id/final-exam', isAdmin, async (req, res) => {
+router.get('/admin/courses/:id/final-exam', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).lean();
     if (!course) return res.status(404).send('Course not found');
@@ -746,7 +798,7 @@ router.get('/admin/courses/:id/final-exam', isAdmin, async (req, res) => {
 
 // 🧩 POST /admin/courses/:id/final-exam → save Final Exam
 // 🧠 POST /admin/courses/:id/final-exam → Add new question to Final Exam
-router.post('/admin/courses/:id/final-exam', isAdmin, async (req, res) => {
+router.post('/admin/courses/:id/final-exam', async (req, res) => {
   try {
     const courseId = req.params.id;
     const { questionText, options, correctAnswer } = req.body;
@@ -777,7 +829,8 @@ router.post('/admin/courses/:id/final-exam', isAdmin, async (req, res) => {
         isFinalExam: true,
         title: `Final Exam - ${course.title || courseId}`,
         questions: [],
-        timeLimit: (course.examSettings?.timeLimit || 120) * 60
+        timeLimit: (course.examSettings?.timeLimit || 120) * 60,
+        reviewStatus: 'pending'
       });
     } else {
       // ✅ Update time limit from course if needed
@@ -796,6 +849,11 @@ router.post('/admin/courses/:id/final-exam', isAdmin, async (req, res) => {
       correctAnswer: matchedOption
     });
 
+quiz.reviewStatus = 'pending';
+quiz.reviewedBy = null;
+quiz.reviewedAt = null;
+quiz.reviewNotes = "";
+
     await quiz.save();
     console.log("✅ Final exam question added:", questionText);
 
@@ -809,7 +867,7 @@ router.post('/admin/courses/:id/final-exam', isAdmin, async (req, res) => {
 
 
 // 🧩 POST: Edit Final Exam Question
-router.post('/admin/courses/:id/final-exam/edit/:index', isAdmin, async (req, res) => {
+router.post('/admin/courses/:id/final-exam/edit/:index', async (req, res) => {
   try {
     const { questionText, options, correctAnswer } = req.body;
     const courseId = req.params.id;
@@ -828,6 +886,11 @@ router.post('/admin/courses/:id/final-exam/edit/:index', isAdmin, async (req, re
       correctAnswer
     };
 
+quiz.reviewStatus = 'pending';
+quiz.reviewedBy = null;
+quiz.reviewedAt = null;
+quiz.reviewNotes = "";
+
     await quiz.save();
     res.redirect(`/admin/courses/${courseId}/final-exam`);
   } catch (err) {
@@ -837,7 +900,7 @@ router.post('/admin/courses/:id/final-exam/edit/:index', isAdmin, async (req, re
 });
 
 // 🗑️ POST: Delete Final Exam Question
-router.post('/admin/courses/:id/final-exam/delete/:index', isAdmin, async (req, res) => {
+router.post('/admin/courses/:id/final-exam/delete/:index', async (req, res) => {
   try {
     const courseId = req.params.id;
     const index = Number(req.params.index);
@@ -846,6 +909,12 @@ router.post('/admin/courses/:id/final-exam/delete/:index', isAdmin, async (req, 
     if (!quiz) return res.status(404).send("Final exam not found");
 
     quiz.questions.splice(index, 1);
+
+quiz.reviewStatus = 'pending';
+quiz.reviewedBy = null;
+quiz.reviewedAt = null;
+quiz.reviewNotes = "";
+
     await quiz.save();
 
     res.redirect(`/admin/courses/${courseId}/final-exam`);
@@ -857,7 +926,7 @@ router.post('/admin/courses/:id/final-exam/delete/:index', isAdmin, async (req, 
 
 
 // 📘 Admin View Course Page (separate from user-facing /courses/:id/view)
-router.get('/admin/courses/:id/view', isAdmin, async (req, res) => {
+router.get('/admin/courses/:id/view', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).lean();
     if (!course) return res.status(404).send('Course not found');
@@ -1039,3 +1108,4 @@ router.get('/logout', (req, res) => {
 });
 
 module.exports = router;
+

@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 const helpRoutes = require('./routes/helpRoutes');
 const fs = require('fs');
 const deactivateInactiveUsers = require('./utils/deactivateInactiveUsers');
-
+const linguistRoutes = require('./routes/linguistRoutes');
 
 
 
@@ -72,6 +72,8 @@ app.use('/', authRoutes);
 
 // Admin routes
 app.use('/', adminRoutes);
+
+app.use('/', linguistRoutes);
 
 app.use('/', userRoutes);
 

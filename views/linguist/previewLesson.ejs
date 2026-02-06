@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= pageTitle %></title>
+
+  <style>
+    :root {
+      --bg: #f5f1ec;
+      --card: #ffffff;
+      --line: #e2d7c8;
+      --brown-dark: #3d2b1f;
+      --brown: #4b331a;
+      --brown-light: #b14d2c;
+      --accent: #f1c48f;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      padding: 30px;
+      color: var(--brown-dark);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      text-decoration: none;
+      background: #eee;
+      color: var(--brown-dark);
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      box-shadow: 0 3px 0 #d0c7bb;
+    }
+
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #d0c7bb;
+    }
+
+    .badge {
+      background: var(--accent);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 6px;
+    }
+
+    .meta {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brown-light);
+      margin-bottom: 18px;
+    }
+
+    /* ===== CONTENT ===== */
+    .content {
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .content p {
+      margin-bottom: 14px;
+    }
+
+    .content ul {
+      padding-left: 22px;
+      margin-bottom: 14px;
+    }
+
+    .content li {
+      margin-bottom: 8px;
+    }
+
+    .empty {
+      font-style: italic;
+      color: var(--brown-light);
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="/linguist/review" class="back-btn">← Back to Review Dashboard</a>
+    <span class="badge">LINGUIST REVIEW MODE</span>
+  </div>
+
+  <!-- LESSON CARD -->
+  <div class="card">
+    <h1><%= lesson.title %></h1>
+
+    <div class="meta">
+      Lesson ID: <%= lesson._id %>
+    </div>
+
+    <div class="content">
+      <% if (lesson.description) { %>
+        <%- lesson.description %>
+      <% } else { %>
+        <p class="empty">No lesson content provided.</p>
+      <% } %>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= pageTitle %></title>
+
+  <style>
+    :root {
+      --bg: #f5f1ec;
+      --card: #ffffff;
+      --line: #e2d7c8;
+      --brown-dark: #3d2b1f;
+      --brown: #4b331a;
+      --brown-light: #b14d2c;
+      --accent: #f1c48f;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      padding: 30px;
+      color: var(--brown-dark);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      text-decoration: none;
+      background: #eee;
+      color: var(--brown-dark);
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      box-shadow: 0 3px 0 #d0c7bb;
+    }
+
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #d0c7bb;
+    }
+
+    .badge {
+      background: var(--accent);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--brown-light);
+    }
+
+    /* ===== LESSON LIST ===== */
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    li a {
+      text-decoration: none;
+      font-weight: 700;
+      color: var(--brown-dark);
+    }
+
+    li a:hover {
+      text-decoration: underline;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      font-weight: 700;
+      color: var(--brown-light);
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="/linguist/review" class="back-btn">← Back to Review Dashboard</a>
+    <span class="badge">LINGUIST REVIEW MODE</span>
+  </div>
+
+  <!-- COURSE INFO -->
+  <div class="card">
+    <h1><%= course.title %></h1>
+    <p><%= course.description %></p>
+    <div class="meta">
+      Level: <%= course.level %>
+    </div>
+  </div>
+
+  <!-- LESSONS -->
+  <div class="card">
+    <h3>Lessons in this course</h3>
+
+    <% if (lessons.length === 0) { %>
+      <div class="empty">No lessons found for this course</div>
+    <% } %>
+
+    <ul>
+      <% lessons.forEach(lesson => { %>
+        <li>
+          <a href="/linguist/preview/lesson/<%= lesson._id %>" target="_blank">
+            <%= lesson.title %>
+          </a>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>

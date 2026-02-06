@@ -21,7 +21,30 @@ const lessonSchema = new mongoose.Schema({
   isArchived: {
     type: Boolean,
     default: false
-  }
+  },
+
+  reviewStatus: {
+  type: String,
+  enum: ['draft', 'pending', 'approved', 'rejected'],
+  default: 'draft'
+},
+
+reviewedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null
+},
+
+reviewedAt: {
+  type: Date,
+  default: null
+},
+
+reviewNotes: {
+  type: String,
+  default: ""
+}
+
 });
 
 module.exports = mongoose.model('Lesson', lessonSchema);

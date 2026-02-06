@@ -190,7 +190,7 @@ try {
 // 5️⃣ Redirect based on role
 try {
   // ⭐ Update loginDays before session save
-if (fullUser.role !== 'admin') {
+if (fullUser.role === 'user') {
 
   const today = new Date().toDateString();
   const lastLogin = user.lastLoginDate
@@ -212,15 +212,22 @@ if (fullUser.role !== 'admin') {
   req.session.user = updatedUser;
   req.session.userId = updatedUser._id;
 
-  req.session.save(() => {
-    if (updatedUser.role === 'admin') {
-      console.log(`✅ Admin ${updatedUser.username} logged in!`);
-      return res.redirect('/admin/dashboard');
-    } else {
-      console.log(`✅ User ${updatedUser.username} logged in!`);
-      return res.redirect('/users/dashboard');
-    }
-  });
+req.session.save(() => {
+  if (updatedUser.role === 'admin') {
+    console.log(`✅ Admin ${updatedUser.username} logged in!`);
+    return res.redirect('/admin/dashboard');
+  }
+
+  if (updatedUser.role === 'linguist') {
+    console.log(`📚 Linguist ${updatedUser.username} logged in!`);
+    return res.redirect('/linguist/review');
+  }
+
+  // default: regular user
+  console.log(`✅ User ${updatedUser.username} logged in!`);
+  return res.redirect('/users/dashboard');
+});
+
 
 } catch (saveErr) {
   console.error("⚠️ Login day update failed:", saveErr);

@@ -30,6 +30,29 @@ const QuizSchema = new mongoose.Schema({
   gradingMethod: { type: String, default: "highest" }, // fixed for now
 
   createdAt: { type: Date, default: Date.now },
+
+  reviewStatus: {
+  type: String,
+  enum: ['draft', 'pending', 'approved', 'rejected'],
+  default: 'draft'
+},
+
+reviewedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null
+},
+
+reviewedAt: {
+  type: Date,
+  default: null
+},
+
+reviewNotes: {
+  type: String,
+  default: ""
+}
+
 });
 
 module.exports = mongoose.model("Quiz", QuizSchema);

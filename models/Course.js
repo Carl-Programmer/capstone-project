@@ -26,7 +26,7 @@ const courseSchema = new mongoose.Schema({
   },
   certificateFile: {
     type: String, // example: filename.pdf
-    default: "1764336652379-BLANK-CERTICATE.pdf"
+    default: "Chabacano-cert.pdf"
   },
 
    archived: { type: Boolean, default: false },
@@ -59,8 +59,13 @@ reviewedAt: {
 reviewNotes: {
   type: String,
   default: ""
-}
+},
 
+changeSummary: {
+  type: String,
+  default: ""
+},
+lastEditedAt: Date,
 
 });
 

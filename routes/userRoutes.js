@@ -39,16 +39,25 @@ router.get('/users/dashboard', isAuthenticated, async (req, res) => {
 
 
     // My Courses table
-    const myCourses = await Promise.all(
-      enrollments.map(async (e, i) => {
-        const course = await Course.findById(e.courseId).lean();
-        return {
-          index: i + 1,
-          title: course?.title || 'Unknown Course',
-          progress: e.progress || 0
-        };
-      })
-    );
+const myCourses = (
+  await Promise.all(
+    enrollments.map(async (e, i) => {
+      const course = await Course.findOne({
+        _id: e.courseId,
+        archived: { $ne: true }
+      }).lean();
+
+      if (!course) return null;
+
+      return {
+        index: i + 1,
+        title: course.title,
+        progress: e.progress || 0
+      };
+    })
+  )
+).filter(Boolean);
+
 
 // ===========================
 // 🔹 Pending Activity (1 lesson only)
@@ -56,8 +65,12 @@ router.get('/users/dashboard', isAuthenticated, async (req, res) => {
 let pendingActivity = null;
 
 for (const e of enrollments) {
-  const course = await Course.findById(e.courseId).lean();
-  if (!course) continue;
+const course = await Course.findOne({
+  _id: e.courseId,
+  archived: { $ne: true }
+}).lean();
+
+if (!course) continue;
 
   // 🧩 Get all active lessons for this course (sorted)
   const lessons = await Lesson.find({
@@ -176,7 +189,16 @@ router.post('/courses/enroll/:id', async (req, res) => {
        await Enrollment.create({ userId, courseId, progress: 0 });
 
     const user = await User.findById(userId).lean();
-    const course = await Course.findById(courseId).lean();
+const course = await Course.findOne({
+  _id: courseId,
+  archived: { $ne: true }
+}).lean();
+
+if (!course) {
+  req.session.message = "❌ This course is no longer available.";
+  return res.redirect('/courses');
+}
+
 
           if (user.notifEnabled) {
         await sendNotification({
@@ -199,15 +221,21 @@ router.post('/courses/enroll/:id', async (req, res) => {
 // 📗 GET /courses/:id/view – USER view specific course + lessons
 router.get('/courses/:id/view', async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id).lean();
-    if (!course) return res.status(404).send('Course not found');
+const course = await Course.findOne({
+  _id: req.params.id,
+  archived: { $ne: true }
+}).lean();
+
+if (!course) {
+  return res.status(404).send("This course is no longer available.");
+}
 
     const lessons = await Lesson.find({
       courseId: course._id,
-      isArchived: { $ne: true }   // ⬅ exclude archived lessons
+      isArchived: { $ne: true }
     })
-    .sort({ createdAt: 1 })
-    .lean();
+      .sort({ createdAt: 1 })
+      .lean();
 
     const total = lessons.length;  // now counts ONLY active lessons
 
@@ -592,7 +620,15 @@ router.get('/users/final-exam/:courseId/start', async (req, res) => {
 
     if (!quiz) return res.status(404).send("Final exam not found");
 
-    const course = await Course.findById(courseId).lean();
+const course = await Course.findOne({
+  _id: courseId,
+  archived: { $ne: true }
+}).lean();
+
+if (!course) {
+  return res.status(404).send("This course is no longer available.");
+}
+
 
         // 🧠 Session container
     if (!req.session.finalExamOrder) {
@@ -646,7 +682,15 @@ if (req.session.finalExamOrder && req.session.finalExamOrder[quiz._id]) {
 }
     // 🔹 Get course and user info
 
-    const course = await Course.findById(courseId);
+const course = await Course.findOne({
+  _id: courseId,
+  archived: { $ne: true }
+}).lean();
+
+if (!course) {
+  return res.status(404).send("This course is no longer available.");
+}
+
     const user = await User.findById(req.session.user?._id);
 
     if (!user) return res.status(401).send("Please log in first.");
@@ -686,14 +730,14 @@ if (req.session.finalExamOrder && req.session.finalExamOrder[quiz._id]) {
 // 🏅 Generate certificate if passed
 // ==============================
 if (passed) {
-  let templateFile = course.certificateFile || "default-template.pdf";
+  let templateFile = course.certificateFile || "Chabacano-cert.pdf";
   let templatePath = path.join(__dirname, "..", "public", "uploads", "certificates", templateFile);
 
 
 // 🔎 Check if template actually exists
 if (!fs.existsSync(templatePath)) {
   console.warn(`⚠️ Certificate template not found: ${templateFile}, using fallback template.`);
-  templateFile = "1764336652379-BLANK-CERTICATE.pdf"; // ✅ matches your actual filename
+  templateFile = "Chabacano-cert.pdf"; // ✅ matches your actual filename
   templatePath = path.join(__dirname, "..", "public", "uploads", "certificates", templateFile);
 }
 
@@ -973,42 +1017,55 @@ router.post('/users/change-password', async (req, res) => {
   }
 });
 
-// ✅ GET /users/search?q=... – dynamic search suggestions
-// ✅ GET /users/search?q=... – dynamic search suggestions
 router.get('/users/search', async (req, res) => {
-  const q = req.query.q?.toLowerCase() || "";
-  if (!q) return res.json({ suggestions: [] });
+  try {
+    const q = (req.query.q || "").trim();
+    if (!q) return res.json({ suggestions: [] });
 
-  const Lesson = require('../models/Lesson');
-  const Course = require('../models/Course');
+    const regex = new RegExp(q, "i");
 
-  const [lessons, courses] = await Promise.all([
-    Lesson.find({ title: { $regex: q, $options: "i" }, isArchived: false })
-      .select("title courseId")
+    // ✅ ACTIVE COURSES (uses archived)
+    const activeCourses = await Course.find({
+      archived: { $ne: true }
+    })
+      .select("_id title")
+      .lean();
+
+    const activeCourseIds = activeCourses.map(c => c._id);
+
+    const lessons = await Lesson.find({
+      title: regex,
+      isArchived: { $ne: true },   // lessons DO use isArchived 👍
+      courseId: { $in: activeCourseIds }
+    })
       .limit(5)
-      .lean(),
-    Course.find({ title: { $regex: q, $options: "i" }, archived: false })
-      .select("title")
-      .limit(5)
-      .lean()
-  ]);
+      .lean();
 
-  res.json({
-    suggestions: [
-      ...lessons.map(l => ({
-        type: "Lesson",
-        text: l.title,
-        id: l._id,
-        courseId: l.courseId // 🧩 important for redirect
-      })),
-      ...courses.map(c => ({
-        type: "Course",
-        text: c.title,
-        id: c._id
-      }))
-    ]
-  });
+    const courses = activeCourses
+      .filter(c => regex.test(c.title))
+      .slice(0, 5);
+
+    res.json({
+      suggestions: [
+        ...lessons.map(l => ({
+          type: "Lesson",
+          text: l.title,
+          id: l._id,
+          courseId: l.courseId
+        })),
+        ...courses.map(c => ({
+          type: "Course",
+          text: c.title,
+          id: c._id
+        }))
+      ]
+    });
+  } catch (err) {
+    console.error("Search error:", err);
+    res.json({ suggestions: [] });
+  }
 });
+
 
 
 

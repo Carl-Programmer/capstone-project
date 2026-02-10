@@ -12,6 +12,8 @@ const fs = require("fs");
 
 // 🔒 Protect ALL admin routes
 router.use('/admin', isAdminOrLinguist);
+
+
 // ============================
 // Admin Routes
 // ============================
@@ -190,6 +192,19 @@ router.post('/admin/users/unarchive/:id', async (req, res) => {
   }
 });
 
+// 🟢 Submit to linguist route
+router.post('/admin/courses/:id/submit-review', async (req, res) => {
+  await Course.findByIdAndUpdate(req.params.id, {
+    reviewStatus: 'pending',
+    reviewedBy: null,
+    reviewedAt: null,
+    reviewNotes: "",
+    lastEditedAt: new Date(),
+    changeSummary: req.body.changeSummary || "Minor updates"
+  });
+
+  res.redirect(`/admin/courses/${req.params.id}`);
+});
 
 
 // ============================
@@ -228,7 +243,7 @@ router.get('/admin/courses', async (req, res) => {
 router.post('/admin/courses/add', async (req, res) => {
   try {
     const { title, description, level } = req.body;
-    await Course.create({ title, description, level, reviewStatus: 'pending' });
+    await Course.create({ title, description, level, reviewStatus: 'draft' });
     res.redirect('/admin/courses');
   } catch (err) {
     console.error('Error adding course:', err);
@@ -299,11 +314,8 @@ router.post('/admin/courses/update/:id', async (req, res) => {
       title,
       description,
       level,
-      reviewStatus: 'pending',
-      reviewedBy: null,
-      reviewedAt: null,
-      reviewNotes: ""
     });
+
 
     res.redirect(`/admin/courses/${req.params.id}`);
   } catch (err) {
@@ -344,13 +356,10 @@ router.post('/admin/lessons/edit/:id', async (req, res) => {
       {
         title,
         description,
-        reviewStatus: 'pending',
-        reviewedBy: null,
-        reviewedAt: null,
-        reviewNotes: ""
       },
       { new: true }
     );
+
 
     res.redirect(`/admin/courses/${lesson.courseId}`);
   } catch (err) {
@@ -381,7 +390,9 @@ router.post('/admin/lessons/add', async (req, res) => {
     const { courseId, title, description } = req.body;
     if (!courseId) return res.status(400).send('Missing course ID');
 
-    await Lesson.create({ courseId, title, description, reviewStatus: 'pending' });
+    await Lesson.create({ courseId, title, description, reviewStatus: 'draft' });
+
+
     res.redirect(`/admin/courses/${courseId}`);
   } catch (err) {
     console.error('Error adding lesson:', err);
@@ -401,6 +412,7 @@ router.post('/admin/lessons/archive/:id', async (req, res) => {
 
     if (!lesson) return res.status(404).send("Lesson not found");
 
+
     // Redirect back to the course details page
     res.redirect(`/admin/courses/${lesson.courseId}`);
   } catch (err) {
@@ -418,7 +430,10 @@ router.post('/admin/lessons/restore/:id', async (req, res) => {
       { new: true }
     );
 
-    if (!lesson) return res.status(404).send("Lesson not found");
+        if (!lesson) return res.status(404).send("Lesson not found");
+
+
+    
 
     res.redirect(`/admin/courses/${lesson.courseId}`);
   } catch (err) {
@@ -462,13 +477,8 @@ router.post("/admin/courses/:id/upload-syllabus", upload.single("syllabus"), asy
     }
 
     // Save new file path
-    await Course.findByIdAndUpdate(req.params.id, {
-  syllabusPath,
-  reviewStatus: 'pending',
-  reviewedBy: null,
-  reviewedAt: null,
-  reviewNotes: ""
-});
+await Course.findByIdAndUpdate(req.params.id, { syllabusPath });
+
     res.redirect(`/admin/courses/${req.params.id}`);
   } catch (err) {
     console.error("Error uploading syllabus:", err);
@@ -485,8 +495,16 @@ router.post('/admin/lessons/:lessonId/quiz/settings', async (req, res) => {
     const lessonId = req.params.lessonId;
 
     // Find the quiz
-    const quiz = await Quiz.findOne({ lessonId, isFinalExam: false });
-    if (!quiz) return res.status(404).send("Quiz not found");
+let quiz = await Quiz.findOne({ lessonId, isFinalExam: false });
+
+if (!quiz) {
+  quiz = new Quiz({
+    lessonId,
+    title: "Lesson Quiz",
+    timeLimit: 1200,
+    gradingMethod: "highest",
+  });
+}
 
     // ✅ Convert & update safely
     if (timeLimit) quiz.timeLimit = Number(timeLimit) * 60; // minutes → seconds
@@ -505,12 +523,12 @@ router.post('/admin/lessons/:lessonId/quiz/settings', async (req, res) => {
 
     quiz.gradingMethod = "highest";
 
-    quiz.reviewStatus = 'pending';
-    quiz.reviewedBy = null;
-    quiz.reviewedAt = null;
-    quiz.reviewNotes = "";
-
     await quiz.save();
+
+const lesson = await Lesson.findById(lessonId);
+
+
+
     console.log("✅ Quiz settings updated:", quiz.title);
 
     res.redirect(`/admin/lessons/${lessonId}/quiz?success=1`);
@@ -564,10 +582,14 @@ router.post('/admin/lessons/:id/quiz', async (req, res) => {
       lessonId: req.params.id,
       title,
       timeLimit: 1200, // seconds
-      reviewStatus: 'pending'
     });
 
     await newQuiz.save();
+
+const lesson = await Lesson.findById(req.params.id);
+
+
+
     await Lesson.findByIdAndUpdate(req.params.id, { hasQuiz: true });
 
     res.redirect(`/admin/lessons/${req.params.id}/quiz`);
@@ -612,12 +634,12 @@ router.post('/admin/quiz/:id/add', async (req, res) => {
       correctAnswer: canonicalCorrect
     });
 
-    quiz.reviewStatus = 'pending';
-    quiz.reviewedBy = null;
-    quiz.reviewedAt = null;
-    quiz.reviewNotes = "";
-
     await quiz.save();
+
+const lesson = await Lesson.findById(quiz.lessonId);
+
+
+
     res.redirect(`/admin/lessons/${quiz.lessonId}/quiz`);
   } catch (err) {
     console.error(err);
@@ -685,12 +707,12 @@ router.post('/admin/quiz/:quizId/edit/:index', async (req, res) => {
       correctAnswer: canonicalCorrect
     };
 
-    quiz.reviewStatus = 'pending';
-    quiz.reviewedBy = null;
-    quiz.reviewedAt = null;
-    quiz.reviewNotes = "";
-
     await quiz.save();
+
+const lesson = await Lesson.findById(quiz.lessonId);
+
+
+
     res.redirect(`/admin/lessons/${quiz.lessonId}/quiz`);
   } catch (err) {
     console.error(err);
@@ -708,12 +730,11 @@ router.post('/admin/quiz/:quizId/delete/:index', async (req, res) => {
 
     quiz.questions.splice(req.params.index, 1);
 
-    quiz.reviewStatus = 'pending';
-    quiz.reviewedBy = null;
-    quiz.reviewedAt = null;
-    quiz.reviewNotes = "";
-
     await quiz.save();
+
+const lesson = await Lesson.findById(quiz.lessonId);
+
+
 
     res.redirect(`/admin/lessons/${quiz.lessonId}/quiz`);
   } catch (err) {
@@ -731,7 +752,6 @@ router.post("/admin/courses/:id/final-exam/settings", async (req, res) => {
   const { timeLimit, waitDays, passingGrade, gradingMethod, description } = req.body;
 
   try {
-    // ✅ Update the course
     const course = await Course.findByIdAndUpdate(
       id,
       {
@@ -746,24 +766,16 @@ router.post("/admin/courses/:id/final-exam/settings", async (req, res) => {
       { new: true }
     );
 
-    // ✅ Update or create the corresponding final exam quiz
     let quiz = await Quiz.findOne({ courseId: id, isFinalExam: true });
 
-if (quiz) {
-  quiz.timeLimit = course.examSettings.timeLimit * 60; // keep synced
-
-  quiz.reviewStatus = 'pending';
-  quiz.reviewedBy = null;
-  quiz.reviewedAt = null;
-  quiz.reviewNotes = "";
-
-  await quiz.save();
-}
+    if (quiz) {
+      quiz.timeLimit = Number(course.examSettings.timeLimit) * 60;
+      await quiz.save();
+    }
 
 
-    console.log("🧠 quiz.timeLimit:", quiz.timeLimit, "course.examSettings.timeLimit:", course.examSettings.timeLimit);
-
-    console.log(`✅ Synced time limit: ${timeLimit} mins (${timeLimit * 60}s)`);
+    console.log("🧠 Final exam exists:", !!quiz);
+    console.log("🧠 Course exam time (mins):", course.examSettings.timeLimit);
 
     res.status(200).json({ success: true });
   } catch (err) {
@@ -771,6 +783,7 @@ if (quiz) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
 
 
 
@@ -830,7 +843,6 @@ router.post('/admin/courses/:id/final-exam', async (req, res) => {
         title: `Final Exam - ${course.title || courseId}`,
         questions: [],
         timeLimit: (course.examSettings?.timeLimit || 120) * 60,
-        reviewStatus: 'pending'
       });
     } else {
       // ✅ Update time limit from course if needed
@@ -849,12 +861,9 @@ router.post('/admin/courses/:id/final-exam', async (req, res) => {
       correctAnswer: matchedOption
     });
 
-quiz.reviewStatus = 'pending';
-quiz.reviewedBy = null;
-quiz.reviewedAt = null;
-quiz.reviewNotes = "";
-
     await quiz.save();
+
+
     console.log("✅ Final exam question added:", questionText);
 
     res.redirect(`/admin/courses/${courseId}/final-exam`);
@@ -886,12 +895,9 @@ router.post('/admin/courses/:id/final-exam/edit/:index', async (req, res) => {
       correctAnswer
     };
 
-quiz.reviewStatus = 'pending';
-quiz.reviewedBy = null;
-quiz.reviewedAt = null;
-quiz.reviewNotes = "";
-
     await quiz.save();
+
+
     res.redirect(`/admin/courses/${courseId}/final-exam`);
   } catch (err) {
     console.error("Error editing final exam question:", err);
@@ -910,12 +916,8 @@ router.post('/admin/courses/:id/final-exam/delete/:index', async (req, res) => {
 
     quiz.questions.splice(index, 1);
 
-quiz.reviewStatus = 'pending';
-quiz.reviewedBy = null;
-quiz.reviewedAt = null;
-quiz.reviewNotes = "";
-
     await quiz.save();
+
 
     res.redirect(`/admin/courses/${courseId}/final-exam`);
   } catch (err) {

@@ -66,13 +66,20 @@ router.post('/linguist/review/:type/:id/reject', isAdminOrLinguist, async (req, 
     const { type, id } = req.params;
     const { notes } = req.body;
     const Model = modelMap[type];
+
     if (!Model) return res.status(400).send("Invalid review type");
+
+    if (!notes || notes.trim() === "") {
+      return res.status(400).send("Rejection reason is required");
+    }
 
     await Model.findOneAndUpdate(
       { _id: id, reviewStatus: 'pending' },
       {
         reviewStatus: 'rejected',
-        reviewNotes: notes || ""
+        reviewedBy: req.session.user._id,
+        reviewedAt: new Date(),
+        reviewNotes: notes.trim()
       }
     );
 
@@ -82,6 +89,7 @@ router.post('/linguist/review/:type/:id/reject', isAdminOrLinguist, async (req, 
     res.status(500).send("Rejection failed");
   }
 });
+
 
 // 👀 Preview course
 router.get('/linguist/preview/course/:id', isAdminOrLinguist, async (req, res) => {

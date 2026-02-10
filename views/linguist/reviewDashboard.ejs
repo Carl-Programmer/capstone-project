@@ -1,8 +1,17 @@
 <!DOCTYPE html>
-
 <html>
 <head>
   <title><%= pageTitle %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/typography"></script>
+  <script>
+  tailwind.config = {
+    theme: {
+      extend: {},
+    },
+    plugins: [tailwindcss.typography],
+  };
+  </script>
 
 <style>
 :root {
@@ -23,7 +32,6 @@ body {
   color: var(--brown-dark);
 }
 
-/* MAIN CONTAINER */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -54,78 +62,26 @@ body {
 
 /* ===== HEADER ===== */
 h1 {
-  margin-bottom: 24px;
   text-align: center;
-}
-
-/* ===== STATS ===== */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-}
-
-.stat-card h2 {
-  font-size: 56px;
-  margin: 0;
-}
-
-.stat-card p {
-  margin-top: 6px;
-  font-weight: 700;
-  color: var(--brown-light);
-}
-
-/* ===== TABS ===== */
-.tabs {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
   margin-bottom: 28px;
+  font-size: 36px;
+  font-weight: 800;
+}
+.page-title {
+  text-align: center;
+  margin-bottom: 28px;
+  font-size: 40px;
+  font-weight: 800;
 }
 
-.tab {
-  padding: 10px 22px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 700;
-  background: #eee;
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 0 #d0c7bb;
-}
-
-.tab.active {
-  background: var(--brown);
-  color: #fff;
-  box-shadow: 0 4px 0 #382410;
-}
-
-/* ===== SECTIONS ===== */
-.section {
-  display: none;
-}
-
-.section.active {
-  display: block;
-}
 
 /* ===== CARD ===== */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 24px;
+  padding: 24px;
+  margin-bottom: 28px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.06);
 }
 
@@ -136,15 +92,33 @@ h1 {
   margin-bottom: 14px;
 }
 
-.card-header a {
+/* ===== TITLE LINK + VIEW ===== */
+.title-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 20px;
   font-weight: 700;
   color: var(--brown-dark);
   text-decoration: none;
 }
 
-.card-header a:hover {
+.title-link:hover {
   text-decoration: underline;
+}
+
+.view-hint {
+  font-size: 12px;
+  font-weight: 800;
+  background: #eef2ff;
+  color: #3b5bcc;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.title-link:hover .view-hint {
+  background: #3b5bcc;
+  color: #fff;
 }
 
 /* ===== BADGE ===== */
@@ -156,14 +130,23 @@ h1 {
   font-weight: 800;
 }
 
-/* ===== TEXTAREA ===== */
-textarea {
-  width: 100%;
-  resize: none;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 10px;
+/* ===== SECTIONS ===== */
+.section {
+  margin-top: 18px;
+}
+
+.section h3 {
+  margin-bottom: 10px;
+}
+
+/* ===== ITEMS ===== */
+.lesson,
+.quiz {
+  padding: 12px;
   border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: #faf7f3;
 }
 
 /* ===== ACTIONS ===== */
@@ -173,7 +156,16 @@ textarea {
   margin-top: 12px;
 }
 
-/* APPROVE = GREEN */
+textarea {
+  width: 100%;
+  resize: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+/* ===== BUTTONS ===== */
 .approve {
   background: #2e9e4f;
   color: #fff;
@@ -190,7 +182,6 @@ textarea {
   box-shadow: 0 2px 0 #1f7a3a;
 }
 
-/* REJECT = RED */
 .reject {
   background: #e04b4b;
   color: #fff;
@@ -207,34 +198,13 @@ textarea {
   box-shadow: 0 2px 0 #b53636;
 }
 
-/* EMPTY */
+/* ===== EMPTY ===== */
 .empty {
   text-align: center;
   padding: 40px;
   font-weight: 700;
   color: var(--brown-light);
 }
-
-.title-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.view-hint {
-  font-size: 12px;
-  font-weight: 800;
-  background: #eef2ff;
-  color: #3b5bcc;
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-.card-header a:hover .view-hint {
-  background: #3b5bcc;
-  color: #fff;
-}
-
 </style>
 </head>
 
@@ -242,159 +212,108 @@ textarea {
 
 <div class="container">
 
-<!-- TOP BAR -->
-<!-- TOP BAR -->
-<div class="top-bar">
-  <a href="#" class="logout" id="linguistLogoutBtn">Logout</a>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="#" class="logout" id="linguistLogoutBtn">Logout</a>
+  </div>
+
+<h1 class="page-title">Linguist Review Dashboard</h1>
+
+  <% if (courses.length === 0) { %>
+    <div class="empty">No pending courses 🎉</div>
+  <% } %>
+
+  <% courses.forEach(course => { %>
+    <div class="card">
+
+      <!-- COURSE HEADER -->
+      <div class="card-header">
+        <a href="/linguist/preview/course/<%= course._id %>" class="title-link">
+          <%= course.title %>
+          <span class="view-hint">View</span>
+        </a>
+        <span class="badge">PENDING</span>
+      </div>
+
+<% if (course.changeSummary) { %>
+  <div class="card" style="background:#fff7ed; border-color:#facc15;">
+    <strong>📝 Changes since last review</strong>
+    <p style="margin-top:8px;"><%= course.changeSummary %></p>
+  </div>
+<% } %>
+
+
+<div class="prose max-w-none
+            prose-p:text-[--brown-dark]
+            prose-em:text-[--brown]
+            prose-strong:text-[--brown-dark]">
+  <%- course.description %>
 </div>
 
 
-  <h1>Linguist Review Dashboard</h1>
+      <!-- LESSONS -->
+      <div class="section">
+        <h3>📚 Lessons</h3>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat-card">
-      <h2><%= counts.courses %></h2>
-      <p>Pending Courses</p>
-    </div>
-    <div class="stat-card">
-      <h2><%= counts.lessons %></h2>
-      <p>Pending Lessons</p>
-    </div>
-    <div class="stat-card">
-      <h2><%= counts.quizzes %></h2>
-      <p>Pending Quizzes & Exams</p>
-    </div>
-  </div>
+        <% lessons
+          .filter(l => String(l.courseId) === String(course._id))
+          .forEach(lesson => { %>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <div class="tab active" onclick="showTab(event,'courses')">Courses</div>
-    <div class="tab" onclick="showTab(event,'lessons')">Lessons</div>
-    <div class="tab" onclick="showTab(event,'quizzes')">Quizzes & Exams</div>
-  </div>
+          <div class="lesson">
+            <a href="/linguist/preview/lesson/<%= lesson._id %>" class="title-link">
+              <%= lesson.title %>
+              <span class="view-hint">View</span>
+            </a>
+          </div>
 
-  <!-- COURSES -->
-  <div id="courses" class="section active">
-    <% if (courses.length === 0) { %>
-      <div class="empty">No pending courses 🎉</div>
-    <% } %>
+        <% }) %>
+      </div>
 
-    <% courses.forEach(course => { %>
-      <div class="card">
-        <div class="card-header">
-          <a href="/linguist/preview/course/<%= course._id %>" class="title-link">
-            <%= course.title %>
-            <span class="view-hint">View</span>
-          </a>
+      <!-- QUIZZES -->
+      <div class="section">
+        <h3>🧩 Quizzes & Final Exam</h3>
 
-          <span class="badge">PENDING</span>
-        </div>
+        <% quizzes
+          .filter(q => String(q.courseId) === String(course._id))
+          .forEach(quiz => { %>
 
+          <div class="quiz">
+            <a href="/linguist/preview/quiz/<%= quiz._id %>" class="title-link">
+              <%= quiz.title %>
+              <span class="view-hint">View</span>
+            </a>
+          </div>
+
+        <% }) %>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="section">
         <div class="actions">
-          <form method="POST" action="/linguist/review/course/<%= course._id %>/approve">
-            <button class="approve">Approve</button>
+          <form method="POST" action="/linguist/review/course/<%= course._id %>/approve" style="margin-bottom: 16px;">
+            <button class="approve">Approve Course</button>
           </form>
         </div>
 
         <form method="POST" action="/linguist/review/course/<%= course._id %>/reject">
-          <textarea name="notes" placeholder="Rejection reason" required></textarea>
+          <textarea name="notes" placeholder="Rejection reason (required)" required></textarea>
           <div class="actions">
-            <button class="reject">Reject</button>
+            <button class="reject">Reject Course</button>
           </div>
         </form>
       </div>
-    <% }) %>
-  </div>
 
-  <!-- LESSONS -->
-  <div id="lessons" class="section">
-    <% if (lessons.length === 0) { %>
-      <div class="empty">No pending lessons 🎉</div>
-    <% } %>
-
-    <% lessons.forEach(lesson => { %>
-      <div class="card">
-        <div class="card-header">
-          <a href="/linguist/preview/lesson/<%= lesson._id %>" class="title-link">
-            <%= lesson.title %>
-            <span class="view-hint">View</span>
-          </a>
-          <span class="badge">PENDING</span>
-        </div>
-
-        <div class="actions">
-          <form method="POST" action="/linguist/review/lesson/<%= lesson._id %>/approve">
-            <button class="approve">Approve</button>
-          </form>
-        </div>
-
-        <form method="POST" action="/linguist/review/lesson/<%= lesson._id %>/reject">
-          <textarea name="notes" placeholder="Rejection reason" required></textarea>
-          <div class="actions">
-            <button class="reject">Reject</button>
-          </div>
-        </form>
-      </div>
-    <% }) %>
-  </div>
-
-  <!-- QUIZZES -->
-  <div id="quizzes" class="section">
-    <% if (quizzes.length === 0) { %>
-      <div class="empty">No pending quizzes 🎉</div>
-    <% } %>
-
-    <% quizzes.forEach(quiz => { %>
-      <div class="card">
-        <div class="card-header">
-          <a href="/linguist/preview/quiz/<%= quiz._id %>"  class="title-link">
-            <%= quiz.title %>
-            <span class="view-hint">View</span>
-          </a>
-          <span class="badge">PENDING</span>
-        </div>
-
-        <div class="actions">
-          <form method="POST" action="/linguist/review/quiz/<%= quiz._id %>/approve">
-            <button class="approve">Approve</button>
-          </form>
-        </div>
-
-        <form method="POST" action="/linguist/review/quiz/<%= quiz._id %>/reject">
-          <textarea name="notes" placeholder="Rejection reason" required></textarea>
-          <div class="actions">
-            <button class="reject">Reject</button>
-          </div>
-        </form>
-      </div>
-    <% }) %>
-  </div>
+    </div>
+  <% }) %>
 
 </div>
 
 <script>
-function showTab(e, id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  e.target.classList.add('active');
-}
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const logoutBtn = document.getElementById("linguistLogoutBtn");
-
-  if (!logoutBtn) return;
-
-  logoutBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    const ok = confirm("Are you sure you want to log out?");
-    if (ok) {
-      window.location.href = "/logout"; // GET — matches your route
-    }
-  });
+document.getElementById("linguistLogoutBtn")?.addEventListener("click", e => {
+  e.preventDefault();
+  if (confirm("Are you sure you want to log out?")) {
+    window.location.href = "/logout";
+  }
 });
 </script>
 

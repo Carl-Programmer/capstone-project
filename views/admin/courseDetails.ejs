@@ -50,43 +50,120 @@
         <section class="shell">
           <h2 class="dashboard-title">Edit Course</h2>
 
-          <!-- 🧱 Course Info Edit Form -->
-          <form action="/admin/courses/update/<%= course._id %>" method="POST"
-                class="bg-white p-6 rounded-2xl shadow-md mb-8 grid gap-4 md:grid-cols-2">
-            
-            <div>
-              <label class="block font-semibold text-[#4a2e05] mb-1">Title</label>
-              <input type="text" name="title" value="<%= course.title %>" required
-                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none">
-            </div>
+<% const isLocked = course.reviewStatus === 'pending'; %>
 
-            <div>
-              <label class="block font-semibold text-[#4a2e05] mb-1">Level</label>
-              <select name="level"
-                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none">
-                <option <%= course.level === 'Beginner' ? 'selected' : '' %>>Beginner</option>
-                <option <%= course.level === 'Intermediate' ? 'selected' : '' %>>Intermediate</option>
-                <option <%= course.level === 'Advanced' ? 'selected' : '' %>>Advanced</option>
-              </select>
-            </div>
 
-            <div class="md:col-span-2">
-              <label class="block font-semibold text-[#4a2e05] mb-1">Description</label>
-              <textarea name="description" rows="3"
-                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#f97316] outline-none"><%= course.description %></textarea>
-            </div>
+<!-- 🧪 Review Status -->
+<div class="mb-6 p-4 rounded-lg border
+  <% if (course.reviewStatus === 'approved') { %>
+    bg-green-50 border-green-300
+  <% } else if (course.reviewStatus === 'rejected') { %>
+    bg-red-50 border-red-300
+  <% } else if (course.reviewStatus === 'pending') { %>
+    bg-yellow-50 border-yellow-300
+  <% } else { %>
+    bg-gray-50 border-gray-300
+  <% } %>
+">
 
-            <div class="flex gap-3 md:col-span-2 justify-end">
-              <button type="submit"
-                      class="bg-[#f97316] hover:bg-[#ea580c] text-white px-6 py-3 rounded-lg transition">
-                💾 Save Changes
-              </button>
-              <a href="/admin/courses"
-                 class="bg-gray-200 hover:bg-gray-300 text-[#4a2e05] px-6 py-3 rounded-lg transition">
-                ← Back
-              </a>
-            </div>
-          </form>
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="font-semibold text-lg text-[#4a2e05]">
+        Review Status:
+        <% if (course.reviewStatus === 'approved') { %>
+          <span class="text-green-700">Approved</span>
+        <% } else if (course.reviewStatus === 'rejected') { %>
+          <span class="text-red-700">Rejected</span>
+        <% } else if (course.reviewStatus === 'pending') { %>
+          <span class="text-yellow-700">Pending Review</span>
+        <% } else { %>
+          <span class="text-gray-600">Draft</span>
+        <% } %>
+      </h3>
+
+      <% if (course.reviewedAt) { %>
+        <p class="text-sm text-gray-600 mt-1">
+          Reviewed on <%= new Date(course.reviewedAt).toLocaleString() %>
+        </p>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (course.reviewStatus === 'rejected' && course.reviewNotes) { %>
+    <div class="mt-4 p-3 bg-white border border-red-200 rounded-lg">
+      <p class="font-semibold text-red-700 mb-1">Rejection Reason</p>
+      <p class="text-gray-700 whitespace-pre-line">
+        <%= course.reviewNotes %>
+      </p>
+    </div>
+  <% } %>
+
+</div>
+
+<% if (course.reviewStatus !== 'pending') { %>
+  <form method="POST"
+        action="/admin/courses/<%= course._id %>/submit-review"
+        class="mb-4 flex flex-col gap-3 items-end">
+
+    <textarea
+      name="changeSummary"
+      placeholder="Describe what you changed (for linguist)"
+      class="w-full md:w-1/2 border rounded-lg p-3"
+      required></textarea>
+
+    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+      📤 Submit for Linguist Review
+    </button>
+  </form>
+<% } %>
+
+
+<!-- 🧱 Course Info Edit Form -->
+<form action="/admin/courses/update/<%= course._id %>" method="POST"
+      <% if (isLocked) { %> onsubmit="return false;" <% } %>
+      class="bg-white p-6 rounded-2xl shadow-md mb-8 grid gap-4 md:grid-cols-2">
+
+  <div>
+    <label class="block font-semibold text-[#4a2e05] mb-1">Title</label>
+    <input type="text" name="title"
+           value="<%= course.title %>"
+           <%= isLocked ? 'disabled' : '' %>
+           required
+           class="w-full border border-gray-300 rounded-lg p-3">
+  </div>
+
+  <div>
+    <label class="block font-semibold text-[#4a2e05] mb-1">Level</label>
+    <select name="level"
+            <%= isLocked ? 'disabled' : '' %>
+            class="w-full border border-gray-300 rounded-lg p-3">
+      <option <%= course.level === 'Beginner' ? 'selected' : '' %>>Beginner</option>
+      <option <%= course.level === 'Intermediate' ? 'selected' : '' %>>Intermediate</option>
+      <option <%= course.level === 'Advanced' ? 'selected' : '' %>>Advanced</option>
+    </select>
+  </div>
+
+  <div class="md:col-span-2">
+    <label class="block font-semibold text-[#4a2e05] mb-1">Description</label>
+    <textarea name="description" rows="3"
+              <%= isLocked ? 'readonly' : '' %>
+              class="w-full border border-gray-300 rounded-lg p-3"><%= course.description %></textarea>
+  </div>
+
+  <div class="flex gap-3 md:col-span-2 justify-end">
+    <button type="submit"
+            class="bg-[#f97316] hover:bg-[#ea580c] text-white px-6 py-3 rounded-lg
+                   <%= isLocked ? 'opacity-50 cursor-not-allowed' : '' %>"
+            <%= isLocked ? 'disabled' : '' %>>
+      💾 Save Changes
+    </button>
+
+    <a href="/admin/courses"
+       class="bg-gray-200 hover:bg-gray-300 text-[#4a2e05] px-6 py-3 rounded-lg">
+      ← Back
+    </a>
+  </div>
+</form>
 
 <!-- 🧩 Course Contents -->
 
@@ -96,29 +173,34 @@
 
   <div class="flex gap-2 flex-wrap">
 
-    <!-- Add Syllabus -->
+      <!-- Add Syllabus -->
     <button id="addSyllabusBtn"
-      class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+      class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition <%= isLocked ? 'opacity-50 cursor-not-allowed' : '' %>"
+      <%= isLocked ? 'disabled' : '' %>>
       📄 Add Syllabus
     </button>
 
     <!-- Add Lesson -->
     <button id="addLessonBtn"
-      class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg transition">
+      class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg transition <%= isLocked ? 'opacity-50 cursor-not-allowed' : '' %>"
+      <%= isLocked ? 'disabled' : '' %>>
       ➕ Add Lesson
     </button>
 
     <!-- View Archived Lessons -->
     <button id="viewArchivedBtn"
-      class="bg-gray-200 hover:bg-gray-300 text-[#4a2e05] px-4 py-2 rounded-lg font-medium transition">
+      class="bg-gray-200 hover:bg-gray-300 text-[#4a2e05] px-4 py-2 rounded-lg font-medium transition <%= isLocked ? 'opacity-50 cursor-not-allowed' : '' %>"
+      <%= isLocked ? 'disabled' : '' %>>
       🗃️ Archived Lessons
     </button>
 
     <!-- 🧠 Create Final Exam -->
-    <a href="/admin/courses/<%= course._id %>/final-exam"
-      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition">
+    <a href="<%= isLocked ? '#' : `/admin/courses/${course._id}/final-exam` %>"
+      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition
+            <%= isLocked ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' %>">
       🧠 Create Final Exam
     </a>
+
 
   </div>
 
@@ -213,23 +295,41 @@
         
         <!-- 🔹 Action Buttons Row (Moved to Top) -->
         <div class="flex justify-end gap-3 mb-2">
-          <a href="/admin/lessons/edit/<%= lesson._id %>"
-             class="text-[#f97316] hover:text-[#ea580c] font-medium">
-             ✏️ Edit
-          </a>
+  <!-- ✏️ Edit Lesson -->
+  <a
+    href="<%= isLocked ? '#' : `/admin/lessons/edit/${lesson._id}` %>"
+    class="text-[#f97316] font-medium
+           <%= isLocked
+             ? 'opacity-50 cursor-not-allowed pointer-events-none'
+             : 'hover:text-[#ea580c]' %>">
+    ✏️ Edit
+  </a>
 
-          <a href="/admin/lessons/<%= lesson._id %>/quiz"
-             class="text-blue-500 hover:text-blue-700 font-medium">
-             🧩 Manage Assessment
-          </a>
+  <!-- 🧩 Manage Assessment -->
+  <a
+    href="<%= isLocked ? '#' : `/admin/lessons/${lesson._id}/quiz` %>"
+    class="text-blue-500 font-medium
+           <%= isLocked
+             ? 'opacity-50 cursor-not-allowed pointer-events-none'
+             : 'hover:text-blue-700' %>">
+    🧩 Manage Assessment
+  </a>
 
-          <form action="/admin/lessons/archive/<%= lesson._id %>" method="POST"
-                onsubmit="return confirm('Are you sure you want to archive this lesson? You can restore it later.')"
-                class="inline">
-            <button type="submit" class="text-yellow-600 hover:text-yellow-700 font-medium">
-              📦 Archive
-            </button>
-          </form>
+<form action="/admin/lessons/archive/<%= lesson._id %>" method="POST"
+      onsubmit="<%= isLocked ? 'return false;' : 'return confirm(\'Are you sure you want to archive this lesson? You can restore it later.\')' %>"
+      class="inline">
+
+  <button type="submit"
+    class="text-yellow-600 font-medium
+           <%= isLocked
+             ? 'opacity-50 cursor-not-allowed'
+             : 'hover:text-yellow-700' %>"
+    <%= isLocked ? 'disabled' : '' %>>
+    📦 Archive
+  </button>
+
+</form>
+
         </div>
 
         <!-- 🔹 Lesson Title & Description -->
@@ -363,5 +463,4 @@ document.getElementById('viewArchivedBtn').addEventListener('click', () => {
 <!-- Include HugeRTE (self-hosted) -->
 <script src="/js/hugerte/hugerte.min.js"></script>
 <script src="/js/hugerte-config.js"></script>
-
 

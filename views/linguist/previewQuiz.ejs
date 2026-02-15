@@ -150,7 +150,8 @@
         <% q.options.forEach(opt => { %>
           <li>
             <%= opt %>
-            <% if (opt === q.correctAnswer) { %>
+            <% if (opt.trim().toLowerCase() === (q.correctAnswer || "").trim().toLowerCase()) { %>
+
               <span class="correct">✔ Correct</span>
             <% } %>
           </li>

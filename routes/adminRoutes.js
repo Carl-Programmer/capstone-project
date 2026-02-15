@@ -766,12 +766,26 @@ router.post("/admin/courses/:id/final-exam/settings", async (req, res) => {
       { new: true }
     );
 
-    let quiz = await Quiz.findOne({ courseId: id, isFinalExam: true });
+let quiz = await Quiz.findOne({ courseId: id, isFinalExam: true });
 
-    if (quiz) {
-      quiz.timeLimit = Number(course.examSettings.timeLimit) * 60;
-      await quiz.save();
-    }
+if (!quiz) {
+  quiz = new Quiz({
+    courseId: id,
+    isFinalExam: true,
+    title: `Final Exam - ${course.title}`,
+    timeLimit: Number(course.examSettings.timeLimit || 120) * 60,
+    questions: []
+  });
+} else {
+  // Ensure title always exists
+  if (!quiz.title) {
+    quiz.title = `Final Exam - ${course.title}`;
+  }
+
+  quiz.timeLimit = Number(course.examSettings.timeLimit || 120) * 60;
+}
+
+await quiz.save();
 
 
     console.log("🧠 Final exam exists:", !!quiz);

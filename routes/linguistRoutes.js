@@ -15,25 +15,34 @@ const modelMap = {
 router.get('/linguist/review', isAdminOrLinguist, async (req, res) => {
   try {
     const courses = await Course.find({ reviewStatus: 'pending' }).lean();
-    const lessons = await Lesson.find({ reviewStatus: 'pending' }).lean();
-    const quizzes = await Quiz.find({ reviewStatus: 'pending' }).lean();
+    const courseIds = courses.map(c => c._id);
+
+    const lessons = await Lesson.find({
+      courseId: { $in: courseIds }
+    }).lean();
+
+    const lessonIds = lessons.map(l => l._id);
+
+    const quizzes = await Quiz.find({
+      $or: [
+        { courseId: { $in: courseIds } },
+        { lessonId: { $in: lessonIds } }
+      ]
+    }).lean();
 
     res.render('linguist/reviewDashboard', {
       pageTitle: "Content Review",
       courses,
       lessons,
-      quizzes,
-      counts: {
-        courses: courses.length,
-        lessons: lessons.length,
-        quizzes: quizzes.length
-      }
+      quizzes
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
   }
 });
+
 
 
 // ✅ Approve

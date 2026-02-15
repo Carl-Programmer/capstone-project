@@ -274,7 +274,14 @@ textarea {
         <h3>🧩 Quizzes & Final Exam</h3>
 
         <% quizzes
-          .filter(q => String(q.courseId) === String(course._id))
+          .filter(q =>
+  String(q.courseId) === String(course._id) ||
+  lessons.some(l =>
+    String(l._id) === String(q.lessonId) &&
+    String(l.courseId) === String(course._id)
+  )
+)
+
           .forEach(quiz => { %>
 
           <div class="quiz">

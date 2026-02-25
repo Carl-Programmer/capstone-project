@@ -63,66 +63,283 @@
 
           </div>
 
-          <!-- TRANSLATE BUTTON -->
+          <!-- TRANSLATE BUTTON 
           <div class="text-center mt-4">
             <button id="translateBtn" class="btn" type="button">
               Translate
             </button>
           </div>
-
+-->
         </section>
       </div>
     </main>
   </div>
-
 <script>
-const translateBtn = document.getElementById('translateBtn');
 const inputField = document.getElementById('tagalogInput');
 const outputField = document.getElementById('chavacanoOutput');
-const outputSection = document.getElementById('outputSection');
 
-translateBtn.addEventListener('click', async () => {
-  const text = inputField.value.trim();
-  if (!text) {
-    outputField.innerHTML = '<span class="text-gray-400">Result will appear here…</span>';
+let allWords = [];
+let tagalogMap = new Map();
+let chavacanoMap = new Map();
+let sentences = [];
+let singleWords = [];
+let debounceTimer;
+
+/* ===============================
+   LOAD + PREPROCESS
+================================= */
+window.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('/users/all-words');
+  allWords = await res.json();
+
+  allWords.forEach(entry => {
+    const tl = entry.tagalog.toLowerCase().trim();
+    const ch = entry.chavacano.toLowerCase().trim();
+
+    tagalogMap.set(tl, entry);
+    chavacanoMap.set(ch, entry);
+
+    if (tl.includes(" ")) {
+      sentences.push(entry);
+    } else {
+      singleWords.push(entry);
+    }
+  });
+});
+
+/* ===============================
+   UTILITIES
+================================= */
+
+// Normalize text
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[.,!?]/g, "")
+    .trim();
+}
+
+// Stopwords (grammar glue words)
+const stopwords = [
+  "ako", "akong", "ka", "ikaw", "siya",
+  "kami", "tayo", "kayo",
+  "ang", "ng", "sa", "ni", "kay",
+  "ba", "ay", "na"
+];
+
+// Remove stopwords for comparison only
+function removeStopwords(text) {
+  return text
+    .split(/\s+/)
+    .filter(word => !stopwords.includes(word))
+    .join(" ");
+}
+
+// Sentence containment check
+function isContained(input, target) {
+
+  const cleanInput = removeStopwords(input);
+  const cleanTarget = removeStopwords(target);
+
+  const inputWords = cleanInput.split(/\s+/);
+  const targetWords = cleanTarget.split(/\s+/);
+
+  return inputWords.every(word => targetWords.includes(word));
+}
+
+// Levenshtein (for typo correction only)
+function levenshtein(a, b) {
+  const matrix = Array.from({ length: b.length + 1 }, () => []);
+  for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b[i - 1] === a[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+/* ===============================
+   TRANSLATION ENGINE
+================================= */
+inputField.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(() => {
+    const raw = inputField.value;
+    const text = normalize(raw);
+
+    if (!text) {
+      outputField.innerHTML =
+        '<span class="text-gray-400">Result will appear here…</span>';
+      return;
+    }
+
+    /* 1️⃣ EXACT MATCH */
+    if (tagalogMap.has(text)) {
+      outputField.innerHTML =
+        `<b>${tagalogMap.get(text).chavacano}</b>`;
+      return;
+    }
+
+    if (chavacanoMap.has(text)) {
+      outputField.innerHTML =
+        `<b>${chavacanoMap.get(text).tagalog}</b>`;
+      return;
+    }
+
+/* 2️⃣ SENTENCE CONTAINMENT (MULTIPLE SUGGESTIONS) */
+if (text.includes(" ")) {
+
+const matches = sentences.filter(entry => {
+  const tl = entry.tagalog.toLowerCase();
+  const ch = entry.chavacano.toLowerCase();
+
+  return isContained(text, tl) || isContained(text, ch);
+}).slice(0, 5);
+
+  if (matches.length > 0) {
+
+outputField.innerHTML = `
+  <div class="text-orange-700 font-semibold mb-1">
+    Did you mean:
+  </div>
+  ${matches.map((entry, index) => `
+    <div data-index="${index}" 
+         class="suggestion text-orange-600 cursor-pointer hover:underline">
+      ${entry.tagalog} ⇄ ${entry.chavacano}
+    </div>
+  `).join("")}
+`;
+
+    // Add click behavior to each suggestion
+const suggestionElements = outputField.querySelectorAll(".suggestion");
+
+suggestionElements.forEach(element => {
+  element.addEventListener("click", () => {
+    const index = element.dataset.index;
+    inputField.value = matches[index].tagalog;
+    inputField.dispatchEvent(new Event("input"));
+  });
+});
+
     return;
   }
 
-  try {
-    const response = await fetch('/users/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
+let tagalogHits = 0;
+let chavacanoHits = 0;
 
-    const data = await response.json();
+text.split(/\s+/).forEach(word => {
+  if (tagalogMap.has(word)) tagalogHits++;
+  if (chavacanoMap.has(word)) chavacanoHits++;
+});
 
-    if (Array.isArray(data.translated)) {
-      outputField.innerHTML = data.translated
-        .map(item => {
-          const from = highlightMatch(item.from, text);
-          const to = highlightMatch(item.to, text);
-          return `<div>${from} → ${to}</div>`;
-        })
-        .join('');
-    } else {
-      outputField.innerHTML = data.translated
-        ? `<div>${data.translated}</div>`
-        : '<span class="text-gray-400">No translation found.</span>';
-    }
+const translatingFromTagalog = tagalogHits >= chavacanoHits;
 
-    outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* 3️⃣ WORD BY WORD */
+  const words = text.split(/\s+/);
+  let result = [];
 
-  } catch (error) {
-    outputField.innerHTML = '<span class="text-red-500">Error translating text.</span>';
+words.forEach(word => {
+  if (translatingFromTagalog && tagalogMap.has(word)) {
+    result.push(tagalogMap.get(word).chavacano);
+  } else if (!translatingFromTagalog && chavacanoMap.has(word)) {
+    result.push(chavacanoMap.get(word).tagalog);
+  } else {
+    result.push(`<span class="text-red-500">${word}</span>`);
   }
 });
 
-function highlightMatch(text, query) {
-  if (!query) return text;
-  const regex = new RegExp(`(${query})`, 'gi');
-  return text.replace(regex, '<span class="bg-yellow-200 font-semibold">$1</span>');
+  outputField.innerHTML = result.join(" ");
+  return;
 }
+
+/* 4️⃣ SMART PARTIAL MATCH (Single Words Only) */
+
+const partialMatches = singleWords.filter(entry => {
+  const tl = entry.tagalog.toLowerCase();
+  const ch = entry.chavacano.toLowerCase();
+
+  // Only allow contains if input is long enough
+  if (text.length >= 3) {
+    return tl.startsWith(text) || ch.startsWith(text) ||
+           tl.includes(text) || ch.includes(text);
+  }
+
+  // For short inputs (1-2 letters), only allow startsWith
+  return tl.startsWith(text) || ch.startsWith(text);
+}).slice(0, 5);
+
+if (partialMatches.length > 0) {
+  outputField.innerHTML = partialMatches
+    .map(entry => `
+      <div class="text-gray-700">
+        ${entry.tagalog} → <b>${entry.chavacano}</b>
+      </div>
+    `)
+    .join("");
+  return;
+}
+
+    /* 5️⃣ TYPO SUGGESTION */
+let bestMatch = null;
+let bestDistance = Infinity;
+let bestSide = null;
+
+singleWords.forEach(entry => {
+  const tlDist = levenshtein(text, entry.tagalog.toLowerCase());
+  const chDist = levenshtein(text, entry.chavacano.toLowerCase());
+
+  if (tlDist < bestDistance) {
+    bestDistance = tlDist;
+    bestMatch = entry;
+    bestSide = "tagalog";
+  }
+
+  if (chDist < bestDistance) {
+    bestDistance = chDist;
+    bestMatch = entry;
+    bestSide = "chavacano";
+  }
+});
+
+if (bestMatch && bestDistance <= 2) {
+  const suggestionWord =
+    bestSide === "tagalog"
+      ? bestMatch.tagalog
+      : bestMatch.chavacano;
+
+  outputField.innerHTML = `
+    <div id="typoSuggestion" class="text-orange-600 cursor-pointer hover:underline">
+      Did you mean: <b>${suggestionWord}</b> ?
+    </div>
+  `;
+
+  const suggestion = document.getElementById("typoSuggestion");
+
+  suggestion.addEventListener("click", () => {
+    inputField.value = suggestionWord;
+    inputField.dispatchEvent(new Event("input"));
+  });
+
+  return;
+}
+
+    outputField.innerHTML =
+      '<span class="text-gray-400">No translation found.</span>';
+
+  }, 120);
+});
 </script>
 </body>
 </html>

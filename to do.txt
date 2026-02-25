@@ -1,0 +1,186 @@
+v1 code translate JS
+
+<script>
+const inputField = document.getElementById('tagalogInput');
+const outputField = document.getElementById('chavacanoOutput');
+
+let allWords = [];
+let debounceTimer;
+
+// LOAD WORDS ONCE
+window.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('/users/all-words');
+  allWords = await res.json();
+});
+
+// REAL LEVENSHTEIN DISTANCE
+function levenshtein(a, b) {
+  const matrix = Array.from({ length: b.length + 1 }, () => []);
+  for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+// LIVE SEARCH
+inputField.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(() => {
+    const text = inputField.value.trim().toLowerCase();
+
+    if (!text) {
+      outputField.innerHTML =
+        '<span class="text-gray-400">Result will appear here…</span>';
+      return;
+    }
+
+// 1️⃣ CHECK FULL SENTENCE EXACT MATCH FIRST
+const fullMatch = allWords.find(word =>
+  word.tagalog.toLowerCase().trim() === text ||
+  word.chavacano.toLowerCase().trim() === text
+);
+
+if (fullMatch) {
+  if (fullMatch.tagalog.toLowerCase().trim() === text) {
+    outputField.innerHTML = `<b>${fullMatch.chavacano}</b>`;
+  } else {
+    outputField.innerHTML = `<b>${fullMatch.tagalog}</b>`;
+  }
+  return;
+}
+// 1.5️⃣ SIMILAR SENTENCE SUGGESTION
+let bestSentenceMatch = null;
+let bestScore = Infinity;
+
+allWords.forEach(word => {
+  // Only check entries that look like sentences (contain space)
+  if (word.tagalog.includes(" ") || word.chavacano.includes(" ")) {
+    const distTagalog = levenshtein(text, word.tagalog.toLowerCase());
+    const distChavacano = levenshtein(text, word.chavacano.toLowerCase());
+    const minDist = Math.min(distTagalog, distChavacano);
+
+    if (minDist < bestScore) {
+      bestScore = minDist;
+      bestSentenceMatch = word;
+    }
+  }
+});
+
+// Allow small difference (like missing 1 word)
+if (bestSentenceMatch && bestScore <= 5) {
+  const suggestion =
+    levenshtein(text, bestSentenceMatch.tagalog.toLowerCase()) <
+    levenshtein(text, bestSentenceMatch.chavacano.toLowerCase())
+      ? bestSentenceMatch.tagalog
+      : bestSentenceMatch.chavacano;
+
+  outputField.innerHTML = `
+    <div class="text-orange-600 cursor-pointer hover:underline">
+      Did you mean: <b>${suggestion}</b> ?
+    </div>
+  `;
+
+  outputField.firstElementChild.addEventListener('click', () => {
+    inputField.value = suggestion;
+    inputField.dispatchEvent(new Event('input'));
+  });
+
+  return;
+}
+// 2️⃣ IF SENTENCE → WORD BY WORD
+if (text.includes(" ")) {
+  const words = text.split(/\s+/);
+  let result = [];
+
+  words.forEach(wordInput => {
+
+    const found = allWords.find(word =>
+      word.tagalog.toLowerCase().trim() === wordInput ||
+      word.chavacano.toLowerCase().trim() === wordInput
+    );
+
+    if (found) {
+      if (found.tagalog.toLowerCase().trim() === wordInput) {
+        result.push(found.chavacano);
+      } else {
+        result.push(found.tagalog);
+      }
+    } else {
+      result.push(`<span class="text-red-500">${wordInput}</span>`);
+    }
+
+  });
+
+  outputField.innerHTML = result.join(" ");
+  return;
+}
+
+// 3️⃣ SINGLE WORD PARTIAL MATCH
+const matches = allWords.filter(word =>
+  word.tagalog.toLowerCase().includes(text) ||
+  word.chavacano.toLowerCase().includes(text)
+).slice(0, 5);
+
+if (matches.length) {
+  outputField.innerHTML = matches
+    .map(item =>
+      `<div>${item.tagalog} → <b>${item.chavacano}</b></div>`
+    )
+    .join('');
+  return;
+}
+
+// 4️⃣ TYPO SUGGESTION
+let bestMatch = null;
+let bestDistance = Infinity;
+
+allWords.forEach(word => {
+  const distTagalog = levenshtein(text, word.tagalog.toLowerCase());
+  const distChavacano = levenshtein(text, word.chavacano.toLowerCase());
+  const minDist = Math.min(distTagalog, distChavacano);
+
+  if (minDist < bestDistance) {
+    bestDistance = minDist;
+    bestMatch = word;
+  }
+});
+
+if (bestMatch && bestDistance <= 2) {
+  const suggestion =
+    levenshtein(text, bestMatch.tagalog.toLowerCase()) <
+    levenshtein(text, bestMatch.chavacano.toLowerCase())
+      ? bestMatch.tagalog
+      : bestMatch.chavacano;
+
+  outputField.innerHTML = `
+    <div class="text-orange-600 cursor-pointer hover:underline">
+      Did you mean: <b>${suggestion}</b> ?
+    </div>
+  `;
+
+  outputField.firstElementChild.addEventListener('click', () => {
+    inputField.value = suggestion;
+    inputField.dispatchEvent(new Event('input'));
+  });
+
+} else {
+  outputField.innerHTML =
+    '<span class="text-gray-400">No translation found.</span>';
+}
+  }, 100);
+});
+</script>

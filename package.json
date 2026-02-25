@@ -22,7 +22,8 @@
     "multer": "^2.0.2",
     "nodemailer": "^7.0.10",
     "pdf-lib": "^1.17.1",
-    "pdfkit": "^0.17.2"
+    "pdfkit": "^0.17.2",
+    "string-similarity": "^4.0.4"
   },
   "devDependencies": {
     "tailwindcss": "^4.1.17"

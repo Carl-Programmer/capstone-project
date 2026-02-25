@@ -18,6 +18,7 @@ const { sendNotification } = require("../utils/notify");
 const QuizAttempt = require('../models/QuizAttempt');
 const { translateText } = require('../controllers/translateController');
 const shuffleArray = require('../utils/shuffleArray');
+const translateController = require('../controllers/translateController');
 
 router.get('/users/dashboard', isAuthenticated, async (req, res) => {
   try {
@@ -840,6 +841,11 @@ router.get('/users/translate', isAuthenticated, (req, res) => {
 // Translation API Route
 // ============================
 router.post('/users/translate', isAuthenticated, translateText);
+
+// ============================
+// Get All Words API Route (for suggestions)
+// ============================
+router.get('/users/all-words', translateController.getAllWords);
 
 // ============================
 // User Profile Routes

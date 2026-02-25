@@ -1,4 +1,6 @@
 const Translation = require('../models/Translation');
+const stringSimilarity = require("string-similarity");
+
 
 exports.translateText = async (req, res) => {
   try {
@@ -18,13 +20,28 @@ exports.translateText = async (req, res) => {
       ]
     }).limit(5);
 
-    if (!results.length) {
-      return res.json({
-        translated: null,
-        suggestions: [],
-        message: "No translation found yet."
-      });
-    }
+if (!results.length) {
+
+  // Get all words from database
+  const allWords = await Translation.find({});
+  const wordList = allWords.map(item => item.tagalog);
+
+  const bestMatch = stringSimilarity.findBestMatch(input, wordList);
+
+  if (bestMatch.bestMatch.rating > 0.5) {
+    return res.json({
+      translated: null,
+      suggestions: [bestMatch.bestMatch.target],
+      message: "Did you mean this?"
+    });
+  }
+
+  return res.json({
+    translated: null,
+    suggestions: [],
+    message: "No translation found yet."
+  });
+}
 
     // Detect direction automatically
     const translations = results.map(item => {
@@ -43,6 +60,20 @@ exports.translateText = async (req, res) => {
 
   } catch (error) {
     console.error("Translation error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getAllWords = async (req, res) => {
+  try {
+    const words = await Translation.find({}, {
+      tagalog: 1,
+      chavacano: 1,
+      category: 1
+    });
+
+    res.json(words);
+  } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 };

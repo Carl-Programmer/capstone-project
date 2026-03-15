@@ -34,14 +34,24 @@ router.post('/register', async (req, res) => {
     });
 
     if (existingUser) {
-      console.log('⚠️ Username or email already exists.');
-      let errorMsg = existingUser.username === username
-        ? 'Username already exists'
-        : 'Email already exists';
-      return res.redirect(`/register?error=${encodeURIComponent(errorMsg)}`);
+
+      // If verified user exists → block
+      if (existingUser.isVerified) {
+        let errorMsg = existingUser.username === username
+          ? 'Username already exists'
+          : 'Email already exists';
+
+        return res.redirect(`/register?error=${encodeURIComponent(errorMsg)}`);
+      }
+
+      // If not verified → remove old account and allow new register
+      await User.deleteOne({ _id: existingUser._id });
     }
 
     // 2️⃣ Save new user
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
+
     const newUser = new User({
       givenName,
       surname,
@@ -50,13 +60,35 @@ router.post('/register', async (req, res) => {
       username,
       email,
       password,
+
+      verifyOTP: otp,
+      verifyOTPExpire: Date.now() + 3 * 60 * 1000, // OTP expires in 3 minutes
     });
 
     await newUser.save();
     console.log('✅ User saved to MongoDB');
 
+    const message = `
+      <h2>Verify Your Email</h2>
+      <p>Welcome to Chabalingo!</p>
+      <p>Your verification code is:</p>
+
+      <h1 style="letter-spacing:6px;">${otp}</h1>
+
+      <p>This code expires in 3 minutes.</p>
+      `;
+
+    await transporter.sendMail({
+      from: `"Chavalingo Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify your email - Chabalingo LMS",
+      html: message,
+    });
+
+    return res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+
     // 3️⃣ Redirect with success message
-    return res.redirect('/register?success=Registration%20successful!%20Redirecting%20to%20login...');
+    //return res.redirect('/register?success=Registration%20successful!%20Redirecting%20to%20login...');
 
   } catch (error) {
     console.error('❌ Registration error:', error);
@@ -75,6 +107,93 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.get("/verify-email", (req, res) => {
+  res.render("verify-email", {
+    email: req.query.email,
+    messages: []
+  });
+});
+
+// ============================
+// EMAIL VERIFICATION
+// ============================
+router.post("/verify-email", async (req, res) => {
+  const { email, otp1, otp2, otp3, otp4, otp5, otp6 } = req.body;
+
+  const enteredOTP = otp1 + otp2 + otp3 + otp4 + otp5 + otp6;
+
+  const user = await User.findOne({
+    email,
+    verifyOTP: enteredOTP,
+    verifyOTPExpire: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.render("verify-email", {
+      email,
+      messages: ["❌ Invalid or expired OTP"]
+    });
+  }
+
+  user.isVerified = true;
+  user.verifyOTP = undefined;
+  user.verifyOTPExpire = undefined;
+
+  await user.save();
+
+  res.redirect("/login?success=Email%20verified!%20You%20can%20now%20login.");
+});
+
+// ============================
+// RESEND EMAIL VERIFICATION OTP
+// ============================
+
+router.post("/resend-verify-otp", async (req, res) => {
+  try {
+
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.redirect("/register?error=Account%20not%20found");
+    }
+
+    if (user.isVerified) {
+      return res.redirect("/login?success=Email%20already%20verified");
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.verifyOTP = otp;
+    user.verifyOTPExpire = Date.now() + 3 * 60 * 1000;
+
+    await user.save();
+
+    const message = `
+      <h2>Email Verification</h2>
+      <p>Your new verification code:</p>
+      <h1 style="letter-spacing:6px;">${otp}</h1>
+      <p>This code expires in 3 minutes.</p>
+    `;
+
+    await transporter.sendMail({
+      from: `"Chavalingo Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "New Verification OTP - Chavalingo",
+      html: message
+    });
+
+    res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+
+  } catch (error) {
+    console.error("Resend OTP Error:", error);
+    res.redirect(`/verify-email?email=${encodeURIComponent(req.body.email)}`);
+  }
+});
+
+
 // ============================
 // LOGIN 
 // ============================
@@ -88,12 +207,24 @@ router.post('/login', async (req, res) => {
 
   try {
     // 1️⃣ Check if user exists
-    const user = await User.findOne({ username });
+      const user = await User.findOne({
+        $or: [
+          { username: username },
+          { email: username }
+        ]
+      });
 
     if (!user) {
       return res.render('login', {
         pageTitle: 'Login',
-        error: '❌ Username not found.',
+        error: '❌ Username or email not found.',
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.render('login', {
+        pageTitle: 'Login',
+        error: '⚠️ Please verify your email before logging in.',
       });
     }
 

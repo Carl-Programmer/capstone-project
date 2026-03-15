@@ -49,6 +49,14 @@ archived: { type: Boolean, default: false },
   resetOTP: { type: String },
   resetOTPExpire: { type: Date },
 
+  isVerified: {
+  type: Boolean,
+  default: false
+},
+
+verifyOTP: { type: String },
+verifyOTPExpire: { type: Date },
+
 loginDays: { type: Number, default: 0 },
 lastLoginDate: { type: Date },
 

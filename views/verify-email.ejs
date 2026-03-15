@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification - Chabalingo</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/resetpass.css">
+</head>
+
+<body>
+
+<header>
+  <a href="/login">
+    <img src="/img/logoRevise.png" alt="Chavalingo Logo" class="logo">
+  </a>
+</header>
+
+<div class="form-container">
+
+  <h2>Email Verification</h2>
+
+  <form action="/verify-email" method="POST" novalidate>
+
+    <p>Enter the 6-digit OTP sent to your email</p>
+
+    <input
+      type="email"
+      name="email"
+      value="<%= email %>"
+      readonly
+    />
+
+    <!-- OTP Section -->
+    <div id="otp-section" style="margin-top:16px;">
+
+      <p>Verification Code:</p>
+
+      <div class="otp-inputs">
+        <input type="text" name="otp1" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+        <input type="text" name="otp2" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+        <input type="text" name="otp3" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+        <input type="text" name="otp4" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+        <input type="text" name="otp5" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+        <input type="text" name="otp6" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+      </div>
+
+      <p class="resend">
+        OTP expires in <span id="countdown">180</span> seconds.
+      </p>
+
+    </div>
+
+    <div class="button-group">
+      <a class="btn btn-cancel" href="/login">Cancel</a>
+      <button type="submit" class="btn btn-submit">Verify</button>
+    </div>
+
+  </form>
+
+<form id="resendForm" action="/resend-verify-otp" method="POST" style="display:none;">
+  <input type="hidden" name="email" value="<%= email %>">
+</form>
+
+  <% if (Array.isArray(messages) && messages.length > 0) { %>
+    <ul class="flashes">
+      <% messages.forEach(function(message) { %>
+        <li><%= message %></li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+</div>
+
+<script>
+(function () {
+
+  document.addEventListener("DOMContentLoaded", init);
+
+  function init() {
+
+    const otpInputs = document.querySelectorAll('.otp-inputs input');
+    const countdownElement = document.getElementById('countdown');
+    const form = document.querySelector("form");
+
+    if (otpInputs.length) {
+      wireOTPInputs(otpInputs);
+      enableOTPPaste(otpInputs);
+      otpInputs[0].focus();
+    }
+
+    if (countdownElement) {
+      startCountdown(countdownElement);
+    }
+
+    if (form) {
+      form.addEventListener("submit", function(e){
+
+        for (let input of otpInputs) {
+          if (!input.value) {
+            e.preventDefault();
+            alert("Please enter the complete 6-digit OTP.");
+            return;
+          }
+        }
+
+      });
+    }
+
+  }
+
+  function startCountdown(counterEl) {
+
+    let timeLeft = 180;
+
+    const timer = setInterval(() => {
+
+      timeLeft--;
+      counterEl.textContent = Math.max(timeLeft, 0);
+
+      if (timeLeft <= 0) {
+
+        clearInterval(timer);
+
+        const resendContainer = document.querySelector('.resend');
+
+        resendContainer.innerHTML =
+          '<a href="#" id="resendLink">Resend OTP</a>';
+
+        const resendLink = document.getElementById('resendLink');
+
+        resendLink.addEventListener('click', function(e){
+
+          e.preventDefault();
+
+          const resendForm = document.getElementById('resendForm');
+
+          if (resendForm) resendForm.submit();
+
+        });
+
+      }
+
+    }, 1000);
+
+  }
+
+  function wireOTPInputs(otpInputs) {
+
+    otpInputs.forEach((input, index) => {
+
+      input.addEventListener('input', (e) => {
+
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0,1);
+
+        if (e.target.value && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+
+      });
+
+      input.addEventListener('keydown', (e) => {
+
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+
+      });
+
+    });
+
+  }
+
+  function enableOTPPaste(otpInputs) {
+
+    otpInputs[0].addEventListener("paste", function(e){
+
+      const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+
+      if (!pasteData) return;
+
+      const digits = pasteData.replace(/\D/g, "").slice(0,6).split("");
+
+      if (digits.length === 6) {
+
+        e.preventDefault();
+
+        digits.forEach((digit, i) => {
+          otpInputs[i].value = digit;
+        });
+
+        otpInputs[5].focus();
+
+      }
+
+    });
+
+  }
+
+})();
+</script>
+
+</body>
+</html>

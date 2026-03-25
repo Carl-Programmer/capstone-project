@@ -1,6 +1,12 @@
 const Translation = require('../models/Translation');
 const stringSimilarity = require("string-similarity");
 
+function normalizeWord(word) {
+  return word
+    .toLowerCase()
+    .replace(/[aeiou]/g, "") // remove vowels
+    .replace(/(.)\1+/g, "$1"); // remove repeated letters
+}
 
 exports.translateText = async (req, res) => {
   try {
@@ -12,12 +18,9 @@ exports.translateText = async (req, res) => {
 
     const input = text.toLowerCase().trim();
 
-    // Find matches in BOTH languages (partial, case-insensitive)
+    // Find matches in tagalog (partial, case-insensitive)
     const results = await Translation.find({
-      $or: [
-        { tagalog: { $regex: input, $options: 'i' } },
-        { chavacano: { $regex: input, $options: 'i' } }
-      ]
+         tagalog: { $regex: input, $options: 'i' } 
     }).limit(5);
 
 if (!results.length) {
@@ -44,15 +47,11 @@ if (!results.length) {
 }
 
     // Detect direction automatically
-    const translations = results.map(item => {
-      const isTagalogInput = item.tagalog.toLowerCase().includes(input);
-
-      return {
-        from: isTagalogInput ? item.tagalog : item.chavacano,
-        to: isTagalogInput ? item.chavacano : item.tagalog,
+    const translations = results.map(item => ({
+        from: item.tagalog,
+        to: item.chavacano,
         category: item.category
-      };
-    });
+      }));
 
     res.json({
       translated: translations

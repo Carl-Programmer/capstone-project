@@ -2,6 +2,7 @@
 <html>
 <head>
   <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/linguistDashboard.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/typography"></script>
   <script>
@@ -13,199 +14,6 @@
   };
   </script>
 
-<style>
-:root {
-  --bg: #f5f1ec;
-  --card: #ffffff;
-  --line: #e2d7c8;
-  --brown-dark: #3d2b1f;
-  --brown: #4b331a;
-  --brown-light: #b14d2c;
-  --accent: #f1c48f;
-}
-
-/* ===== BASE ===== */
-body {
-  font-family: Arial, sans-serif;
-  background: var(--bg);
-  padding: 30px;
-  color: var(--brown-dark);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* ===== TOP BAR ===== */
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16px;
-}
-
-.logout {
-  background: #eee;
-  color: var(--brown-dark);
-  border: 1px solid var(--line);
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 3px 0 #d0c7bb;
-}
-
-.logout:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #d0c7bb;
-}
-
-/* ===== HEADER ===== */
-h1 {
-  text-align: center;
-  margin-bottom: 28px;
-  font-size: 36px;
-  font-weight: 800;
-}
-.page-title {
-  text-align: center;
-  margin-bottom: 28px;
-  font-size: 40px;
-  font-weight: 800;
-}
-
-
-/* ===== CARD ===== */
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 24px;
-  margin-bottom: 28px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-/* ===== TITLE LINK + VIEW ===== */
-.title-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--brown-dark);
-  text-decoration: none;
-}
-
-.title-link:hover {
-  text-decoration: underline;
-}
-
-.view-hint {
-  font-size: 12px;
-  font-weight: 800;
-  background: #eef2ff;
-  color: #3b5bcc;
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-.title-link:hover .view-hint {
-  background: #3b5bcc;
-  color: #fff;
-}
-
-/* ===== BADGE ===== */
-.badge {
-  background: var(--accent);
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-/* ===== SECTIONS ===== */
-.section {
-  margin-top: 18px;
-}
-
-.section h3 {
-  margin-bottom: 10px;
-}
-
-/* ===== ITEMS ===== */
-.lesson,
-.quiz {
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  margin-bottom: 10px;
-  background: #faf7f3;
-}
-
-/* ===== ACTIONS ===== */
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-textarea {
-  width: 100%;
-  resize: none;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-}
-
-/* ===== BUTTONS ===== */
-.approve {
-  background: #2e9e4f;
-  color: #fff;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #1f7a3a;
-}
-
-.approve:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #1f7a3a;
-}
-
-.reject {
-  background: #e04b4b;
-  color: #fff;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #b53636;
-}
-
-.reject:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #b53636;
-}
-
-/* ===== EMPTY ===== */
-.empty {
-  text-align: center;
-  padding: 40px;
-  font-weight: 700;
-  color: var(--brown-light);
-}
-</style>
 </head>
 
 <body>
@@ -217,6 +25,12 @@ textarea {
     <a href="#" class="logout" id="linguistLogoutBtn">Logout</a>
   </div>
 
+  <div class="flex justify-center gap-4 mb-6">
+  <button id="tabCourses" class="tab-btn active">📋 Course Review</button>
+  <button id="tabDictionary" class="tab-btn">📚 Dictionary</button>
+</div>
+
+<div id="coursesTab">
 <h1 class="page-title">Linguist Review Dashboard</h1>
 
   <% if (courses.length === 0) { %>
@@ -312,17 +126,34 @@ textarea {
 
     </div>
   <% }) %>
+</div>
+
+<div id="dictionaryTab" style="display:none;">
+
+  <h2 class="text-xl font-bold mb-4 text-center">Translator Database</h2>
+
+  <!-- ADD WORD -->
+  <div class="card">
+    <h3 class="font-semibold mb-2">➕ Add Translation</h3>
+
+    <form id="addWordForm" class="flex gap-2 flex-wrap">
+      <input name="tagalog" placeholder="Tagalog" required class="border p-2 rounded"/>
+      <input name="chavacano" placeholder="Chabacano" required class="border p-2 rounded"/>
+      <input name="category" placeholder="Category" required class="border p-2 rounded"/>
+      <button class="approve">Add</button>
+    </form>
+  </div>
+
+  <!-- WORD LIST -->
+  <div class="card mt-4">
+    <h3 class="font-semibold mb-2">📋 All Words</h3>
+    <div id="wordList" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+  </div>
 
 </div>
 
-<script>
-document.getElementById("linguistLogoutBtn")?.addEventListener("click", e => {
-  e.preventDefault();
-  if (confirm("Are you sure you want to log out?")) {
-    window.location.href = "/logout";
-  }
-});
-</script>
+</div>
+  <script src="/js/linguist.js"></script>
 
 </body>
 </html>

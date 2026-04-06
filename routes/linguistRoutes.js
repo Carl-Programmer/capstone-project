@@ -139,5 +139,68 @@ router.get('/linguist/preview/quiz/:id', isAdminOrLinguist, async (req, res) => 
   });
 });
 
+// =======================
+// WORD MANAGEMENT
+// =======================
+const Word = require('../models/Translation');
+
+//========================
+// ADD WORD
+//========================
+router.post('/add-word', async (req, res) => {
+  try {
+    const { tagalog, chavacano, category } = req.body;
+
+    // Example using Mongoose
+    await Word.create({
+      tagalog,
+      chavacano,
+      category
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add word' });
+  }
+});
+
+//========================
+// UPDATE WORD
+//========================
+router.put('/update-word/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tagalog, chavacano } = req.body;
+
+    await Word.findByIdAndUpdate(id, {
+      tagalog,
+      chavacano
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update word' });
+  }
+});
+
+//========================
+// DELETE WORD
+//========================
+router.delete('/delete-word/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Word.findByIdAndDelete(id);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete word' });
+  }
+});
+
+
 
 module.exports = router;

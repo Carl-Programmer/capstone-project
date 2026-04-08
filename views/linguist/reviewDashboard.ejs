@@ -26,15 +26,15 @@
   </div>
 
   <div class="flex justify-center gap-4 mb-6">
-  <button id="tabCourses" class="tab-btn active">📋 Course Review</button>
-  <button id="tabDictionary" class="tab-btn">📚 Dictionary</button>
+  <button id="tabCourses" class="tab-btn active">Course Review</button>
+  <button id="tabDictionary" class="tab-btn">Translator Words</button>
 </div>
 
 <div id="coursesTab">
 <h1 class="page-title">Linguist Review Dashboard</h1>
 
   <% if (courses.length === 0) { %>
-    <div class="empty">No pending courses 🎉</div>
+    <div class="empty">No pending courses</div>
   <% } %>
 
   <% courses.forEach(course => { %>
@@ -51,7 +51,7 @@
 
 <% if (course.changeSummary) { %>
   <div class="card" style="background:#fff7ed; border-color:#facc15;">
-    <strong>📝 Changes since last review</strong>
+    <strong>Changes since last review</strong>
     <p style="margin-top:8px;"><%= course.changeSummary %></p>
   </div>
 <% } %>
@@ -67,7 +67,7 @@
 
       <!-- LESSONS -->
       <div class="section">
-        <h3>📚 Lessons</h3>
+        <h3>Lessons</h3>
 
         <% lessons
           .filter(l => String(l.courseId) === String(course._id))
@@ -85,7 +85,7 @@
 
       <!-- QUIZZES -->
       <div class="section">
-        <h3>🧩 Quizzes & Final Exam</h3>
+        <h3>Quizzes & Final Exam</h3>
 
         <% quizzes
           .filter(q =>
@@ -155,7 +155,7 @@
 
   <!-- WORD LIST -->
   <div class="card mt-4">
-    <h3 class="font-semibold mb-2">📋 All Words</h3>
+    <h3 class="font-semibold mb-2">All Words</h3>
     <div id="wordList" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
   </div>
 

@@ -171,7 +171,7 @@ router.post('/add-word', async (req, res) => {
 router.put('/update-word/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { tagalog, chavacano } = req.body;
+    const { tagalog, chavacano, category } = req.body;
 
     await Word.findByIdAndUpdate(id, {
       tagalog,

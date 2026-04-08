@@ -1,3 +1,5 @@
+let allWords = [];
+
 // =======================
 // LOGOUT
 // =======================
@@ -39,9 +41,13 @@ tabDictionary.onclick = () => {
 async function loadWords() {
   const res = await fetch('/users/all-words');
   const words = await res.json();
+  allWords = words; // store globally
+  renderWords(allWords); // render using new function
+  return; // stop here so old render doesn't run
+}
 
-  const container = document.getElementById("wordList");
-
+function renderWords(words) {
+const container = document.getElementById("wordList");
 container.innerHTML = words.map(w => `
   <div class="flex justify-between items-center border p-2 rounded" id="word-${w._id}">
     
@@ -49,6 +55,8 @@ container.innerHTML = words.map(w => `
       <input value="${w.tagalog}" id="tagalog-${w._id}" placeholder="Tagalog word" 
         class="border p-1 rounded hidden w-full"/>
       <input value="${w.chavacano}" id="chavacano-${w._id}" placeholder="Chavacano translation" 
+        class="border p-1 rounded hidden w-full mt-1"/>
+      <input value="${w.category || ""}" id="category-${w._id}" placeholder="Category"
         class="border p-1 rounded hidden w-full mt-1"/>
 
       <div id="text-${w._id}">
@@ -122,6 +130,7 @@ function editWord(id) {
   // Show the input boxes
   document.getElementById(`tagalog-${id}`).classList.remove("hidden");
   document.getElementById(`chavacano-${id}`).classList.remove("hidden");
+  document.getElementById(`category-${id}`).classList.remove("hidden");
 
   // Show the Save and Cancel buttons
   document.getElementById(`save-${id}`).classList.remove("hidden");
@@ -142,6 +151,7 @@ function cancelEdit(id) {
   // Hide the input boxes
   document.getElementById(`tagalog-${id}`).classList.add("hidden");
   document.getElementById(`chavacano-${id}`).classList.add("hidden");
+  document.getElementById(`category-${id}`).classList.add("hidden");
 
   // Hide the Save and Cancel buttons
   document.getElementById(`save-${id}`).classList.add("hidden");
@@ -153,12 +163,13 @@ function cancelEdit(id) {
 async function saveWord(id) {
   const tagalog = document.getElementById(`tagalog-${id}`).value;
   const chavacano = document.getElementById(`chavacano-${id}`).value;
+  const category = document.getElementById(`category-${id}`).value;
 
 try{
   const res = await fetch(`/update-word/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tagalog, chavacano })
+    body: JSON.stringify({ tagalog, chavacano, category })
   });
 
   if (res.ok) {
@@ -189,3 +200,18 @@ async function deleteWord(id) {
     alert("Failed to delete");
   }
 }
+
+// =======================
+// WORD FILTER
+// =======================
+document.getElementById("wordFilter")?.addEventListener("input", e => {
+  const query = e.target.value.toLowerCase();
+
+  const filtered = allWords.filter(w =>
+    w.tagalog.toLowerCase().includes(query) ||
+    w.chavacano.toLowerCase().includes(query) ||
+    (w.category && w.category.toLowerCase().includes(query))
+  );
+
+  renderWords(filtered);
+});

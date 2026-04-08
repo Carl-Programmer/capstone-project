@@ -175,7 +175,8 @@ router.put('/update-word/:id', async (req, res) => {
 
     await Word.findByIdAndUpdate(id, {
       tagalog,
-      chavacano
+      chavacano,
+      category
     });
 
     res.json({ success: true });
